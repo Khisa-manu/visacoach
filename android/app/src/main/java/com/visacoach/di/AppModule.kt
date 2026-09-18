@@ -78,4 +78,10 @@ object AppModule {
             "visacoach.db"
         ).fallbackToDestructiveMigration().build()
     }
+
+    @Provides
+    fun provideCachedQuestionDao(database: VisaCoachDatabase) = database.cachedQuestionDao()
+
+    @Provides
+    fun provideInterviewHistoryDao(database: VisaCoachDatabase) = database.interviewHistoryDao()
 }
