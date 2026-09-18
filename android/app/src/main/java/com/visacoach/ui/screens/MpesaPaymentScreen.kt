@@ -16,6 +16,7 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.unit.dp
 import com.visacoach.ui.components.SafaricomButton
+import com.visacoach.ui.components.VisaMpesaPhoneField
 import com.visacoach.ui.theme.*
 import com.visacoach.ui.viewmodels.PaymentViewModel
 
@@ -126,23 +127,9 @@ fun MpesaPaymentScreen(
 
                 Spacer(modifier = Modifier.height(28.dp))
 
-                Text(
-                    "M-Pesa Phone Number",
-                    style = VisaCoachTypography.labelLarge,
-                    color = Neutral700
-                )
-                Spacer(modifier = Modifier.height(8.dp))
-
-                OutlinedTextField(
-                    value = phone,
-                    onValueChange = { phone = it },
-                    placeholder = { Text("7XX XXX XXX") },
-                    leadingIcon = {
-                        Text("+254", fontWeight = FontWeight.Medium, color = Neutral600)
-                    },
-                    keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Phone),
-                    singleLine = true,
-                    shape = ShapeTextField,
+                VisaMpesaPhoneField(
+                    phone = phone,
+                    onPhoneChange = { phone = it },
                     modifier = Modifier.fillMaxWidth()
                 )
             }

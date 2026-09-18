@@ -20,6 +20,8 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.visacoach.ui.components.PrimaryButton
 import com.visacoach.ui.components.SecondaryButton
+import com.visacoach.ui.components.VisaTextField
+import com.visacoach.ui.components.VisaMpesaPhoneField
 import com.visacoach.ui.theme.*
 import com.visacoach.ui.viewmodels.AuthUiState
 import com.visacoach.ui.viewmodels.AuthViewModel
@@ -247,47 +249,19 @@ fun RegisterScreen(
 
                 Spacer(modifier = Modifier.height(28.dp))
 
-                Text(
-                    text = "Full Legal Name",
-                    style = VisaCoachTypography.labelMedium,
-                    fontWeight = FontWeight.SemiBold,
-                    color = PrimaryNavy
-                )
-                Spacer(modifier = Modifier.height(6.dp))
-                OutlinedTextField(
+                VisaTextField(
                     value = fullName,
                     onValueChange = { fullName = it },
-                    placeholder = { Text("As shown on your passport / DS-160") },
-                    singleLine = true,
-                    shape = ShapeTextField,
+                    label = "Full Legal Name",
+                    placeholder = "As shown on your passport / DS-160",
                     modifier = Modifier.fillMaxWidth()
                 )
 
-                Spacer(modifier = Modifier.height(20.dp))
+                Spacer(modifier = Modifier.height(16.dp))
 
-                Text(
-                    text = "Mobile Phone Number",
-                    style = VisaCoachTypography.labelMedium,
-                    fontWeight = FontWeight.SemiBold,
-                    color = PrimaryNavy
-                )
-                Spacer(modifier = Modifier.height(6.dp))
-                OutlinedTextField(
-                    value = phone,
-                    onValueChange = { phone = it },
-                    placeholder = { Text("07XX XXX XXX") },
-                    leadingIcon = {
-                        Text(
-                            text = "+254",
-                            style = VisaCoachTypography.labelMedium,
-                            fontWeight = FontWeight.Bold,
-                            color = Neutral600,
-                            modifier = Modifier.padding(start = 12.dp, end = 4.dp)
-                        )
-                    },
-                    keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Phone),
-                    singleLine = true,
-                    shape = ShapeTextField,
+                VisaMpesaPhoneField(
+                    phone = phone,
+                    onPhoneChange = { phone = it },
                     modifier = Modifier.fillMaxWidth()
                 )
 
@@ -381,29 +355,9 @@ fun LoginScreen(
 
                 Spacer(modifier = Modifier.height(28.dp))
 
-                Text(
-                    text = "Mobile Phone Number",
-                    style = VisaCoachTypography.labelMedium,
-                    fontWeight = FontWeight.SemiBold,
-                    color = PrimaryNavy
-                )
-                Spacer(modifier = Modifier.height(6.dp))
-                OutlinedTextField(
-                    value = phone,
-                    onValueChange = { phone = it },
-                    placeholder = { Text("07XX XXX XXX") },
-                    leadingIcon = {
-                        Text(
-                            text = "+254",
-                            style = VisaCoachTypography.labelMedium,
-                            fontWeight = FontWeight.Bold,
-                            color = Neutral600,
-                            modifier = Modifier.padding(start = 12.dp, end = 4.dp)
-                        )
-                    },
-                    keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Phone),
-                    singleLine = true,
-                    shape = ShapeTextField,
+                VisaMpesaPhoneField(
+                    phone = phone,
+                    onPhoneChange = { phone = it },
                     modifier = Modifier.fillMaxWidth()
                 )
 

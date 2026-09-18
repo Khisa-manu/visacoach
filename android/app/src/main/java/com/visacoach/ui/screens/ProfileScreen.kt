@@ -17,6 +17,7 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.visacoach.domain.models.ProfileModel
 import com.visacoach.ui.components.PrimaryButton
+import com.visacoach.ui.components.VisaTextField
 import com.visacoach.ui.theme.*
 import com.visacoach.ui.viewmodels.ProfileUiState
 import com.visacoach.ui.viewmodels.ProfileViewModel
@@ -119,127 +120,127 @@ fun ProfileForm(
         }
 
         item {
-            OutlinedTextField(
+            VisaTextField(
                 value = fullName,
                 onValueChange = { fullName = it },
-                label = { Text("Full Name (as in Passport)") },
+                label = "Full Name (as in Passport)",
                 modifier = Modifier.fillMaxWidth()
             )
         }
 
         item {
-            OutlinedTextField(
+            VisaTextField(
                 value = purposeOfTravel,
                 onValueChange = { purposeOfTravel = it },
-                label = { Text("Primary Purpose of Travel") },
-                placeholder = { Text("e.g. Tourism, visiting family, attending conference") },
+                label = "Primary Purpose of Travel",
+                placeholder = "e.g. Tourism, visiting family, attending conference",
                 modifier = Modifier.fillMaxWidth()
             )
         }
 
         item {
             Row(modifier = Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.spacedBy(10.dp)) {
-                OutlinedTextField(
+                VisaTextField(
                     value = intendedTravelDate,
                     onValueChange = { intendedTravelDate = it },
-                    label = { Text("Intended Date") },
-                    placeholder = { Text("e.g. Nov 2026") },
+                    label = "Intended Date",
+                    placeholder = "e.g. Nov 2026",
                     modifier = Modifier.weight(1f)
                 )
-                OutlinedTextField(
+                VisaTextField(
                     value = intendedDuration,
                     onValueChange = { intendedDuration = it },
-                    label = { Text("Duration") },
-                    placeholder = { Text("e.g. 2 weeks") },
+                    label = "Duration",
+                    placeholder = "e.g. 2 weeks",
                     modifier = Modifier.weight(1f)
                 )
             }
         }
 
         item {
-            OutlinedTextField(
+            VisaTextField(
                 value = occupation,
                 onValueChange = { occupation = it },
-                label = { Text("Occupation / Professional Title") },
-                placeholder = { Text("e.g. Software Engineer, Accountant, Business Owner") },
+                label = "Occupation / Professional Title",
+                placeholder = "e.g. Software Engineer, Accountant, Business Owner",
                 modifier = Modifier.fillMaxWidth()
             )
         }
 
         item {
             Row(modifier = Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.spacedBy(10.dp)) {
-                OutlinedTextField(
+                VisaTextField(
                     value = employer,
                     onValueChange = { employer = it },
-                    label = { Text("Employer / Company") },
+                    label = "Employer / Company",
                     modifier = Modifier.weight(1.2f)
                 )
-                OutlinedTextField(
+                VisaTextField(
                     value = employmentDuration,
                     onValueChange = { employmentDuration = it },
-                    label = { Text("Tenure") },
-                    placeholder = { Text("e.g. 3 years") },
+                    label = "Tenure",
+                    placeholder = "e.g. 3 years",
                     modifier = Modifier.weight(0.8f)
                 )
             }
         }
 
         item {
-            OutlinedTextField(
+            VisaTextField(
                 value = incomeRange,
                 onValueChange = { incomeRange = it },
-                label = { Text("Monthly Income Range (KES)") },
-                placeholder = { Text("e.g. KES 150,000 - 250,000") },
+                label = "Monthly Income Range (KES)",
+                placeholder = "e.g. KES 150,000 - 250,000",
                 modifier = Modifier.fillMaxWidth()
             )
         }
 
         item {
-            OutlinedTextField(
+            VisaTextField(
                 value = sponsorType,
                 onValueChange = { sponsorType = it },
-                label = { Text("Trip Funding / Who is Paying") },
-                placeholder = { Text("e.g. Self-funded from savings, Employer sponsored") },
+                label = "Trip Funding / Who is Paying",
+                placeholder = "e.g. Self-funded from savings, Employer sponsored",
                 modifier = Modifier.fillMaxWidth()
             )
         }
 
         item {
-            OutlinedTextField(
+            VisaTextField(
                 value = internationalTravelHistory,
                 onValueChange = { internationalTravelHistory = it },
-                label = { Text("Prior International Travel History") },
-                placeholder = { Text("e.g. Rwanda (2023), South Africa (2024), UAE (2025)") },
+                label = "Prior International Travel History",
+                placeholder = "e.g. Rwanda (2023), South Africa (2024), UAE (2025)",
                 modifier = Modifier.fillMaxWidth()
             )
         }
 
         item {
-            OutlinedTextField(
+            VisaTextField(
                 value = usVisaHistory,
                 onValueChange = { usVisaHistory = it },
-                label = { Text("U.S. Visa History") },
-                placeholder = { Text("e.g. First time applicant, or 214(b) refusal in 2022") },
+                label = "U.S. Visa History",
+                placeholder = "e.g. First time applicant, or 214(b) refusal in 2022",
                 modifier = Modifier.fillMaxWidth()
             )
         }
 
         item {
-            OutlinedTextField(
+            VisaTextField(
                 value = usFamilyInfo,
                 onValueChange = { usFamilyInfo = it },
-                label = { Text("Immediate Family / Relatives in the U.S.") },
-                placeholder = { Text("e.g. None, or sister lives in Dallas on Green Card") },
+                label = "Immediate Family / Relatives in the U.S.",
+                placeholder = "e.g. None, or sister lives in Dallas on Green Card",
                 modifier = Modifier.fillMaxWidth()
             )
         }
 
         item {
-            OutlinedTextField(
+            VisaTextField(
                 value = accommodationDetails,
                 onValueChange = { accommodationDetails = it },
-                label = { Text("Accommodation Details") },
-                placeholder = { Text("e.g. Marriott Hotel Manhattan, or staying with friend") },
+                label = "Accommodation Details",
+                placeholder = "e.g. Marriott Hotel Manhattan, or staying with friend",
                 modifier = Modifier.fillMaxWidth()
             )
         }
