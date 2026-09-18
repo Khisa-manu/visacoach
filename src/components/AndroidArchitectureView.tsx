@@ -2,7 +2,7 @@ import React, { useState } from 'react';
 import { Smartphone, Layers, Database, Cpu, Radio, Shield, Check, Code, FileText } from 'lucide-react';
 
 export const AndroidArchitectureView: React.FC = () => {
-  const [activeTab, setActiveTab] = useState<'SCREENS' | 'CLEAN_ARCH' | 'WEBSOCKET' | 'GRADLE'>('SCREENS');
+  const [activeTab, setActiveTab] = useState<'SCREENS' | 'CLEAN_ARCH' | 'WEBSOCKET' | 'GRADLE' | 'BUILD_APK'>('BUILD_APK');
 
   const screens = [
     { name: "SplashScreen", desc: "Animated USA VisaCoach splash with auto-routing to authenticated session" },
@@ -61,6 +61,12 @@ export const AndroidArchitectureView: React.FC = () => {
             className={`px-3 py-1.5 rounded-lg transition-all ${activeTab === 'GRADLE' ? 'bg-white text-slate-900 shadow-sm' : 'hover:text-slate-900'}`}
           >
             Gradle DSL
+          </button>
+          <button
+            onClick={() => setActiveTab('BUILD_APK')}
+            className={`px-3 py-1.5 rounded-lg transition-all ${activeTab === 'BUILD_APK' ? 'bg-blue-600 text-white shadow-sm' : 'hover:text-slate-900 text-blue-700 font-bold'}`}
+          >
+            Build APK Guide
           </button>
         </div>
       </div>
@@ -180,6 +186,76 @@ export const AndroidArchitectureView: React.FC = () => {
             &nbsp;&nbsp;buildFeatures &#123; compose = <span className="text-amber-300">true</span> &#125;<br/>
             &nbsp;&nbsp;compileOptions &#123; sourceCompatibility = JavaVersion.VERSION_17 &#125;<br/>
             &#125;
+          </div>
+        </div>
+      )}
+      {activeTab === 'BUILD_APK' && (
+        <div className="py-6 space-y-6">
+          {/* Steps Overview */}
+          <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+            <div className="p-4 bg-slate-50 border border-slate-200 rounded-xl">
+              <div className="flex items-center gap-2 font-bold text-sm text-slate-900 mb-2">
+                <span className="w-5 h-5 rounded-full bg-blue-600 text-white text-xs flex items-center justify-center font-bold">1</span>
+                Open Project
+              </div>
+              <p className="text-xs text-slate-600 leading-relaxed">
+                Launch Android Studio and select <strong>Open</strong>. Navigate to and select the <code>android/</code> folder. Wait for Gradle Sync to complete with <strong>JDK 17</strong>.
+              </p>
+            </div>
+
+            <div className="p-4 bg-slate-50 border border-slate-200 rounded-xl">
+              <div className="flex items-center gap-2 font-bold text-sm text-slate-900 mb-2">
+                <span className="w-5 h-5 rounded-full bg-blue-600 text-white text-xs flex items-center justify-center font-bold">2</span>
+                Build APK
+              </div>
+              <p className="text-xs text-slate-600 leading-relaxed">
+                In top menu: <strong>Build &gt; Build Bundle(s) / APK(s) &gt; Build APK(s)</strong>. Or execute <code>./gradlew assembleDebug</code> in the integrated terminal.
+              </p>
+            </div>
+
+            <div className="p-4 bg-slate-50 border border-slate-200 rounded-xl">
+              <div className="flex items-center gap-2 font-bold text-sm text-slate-900 mb-2">
+                <span className="w-5 h-5 rounded-full bg-blue-600 text-white text-xs flex items-center justify-center font-bold">3</span>
+                Locate &amp; Install
+              </div>
+              <p className="text-xs text-slate-600 leading-relaxed">
+                Click <strong>locate</strong> in the completion notification or navigate to <code>android/app/build/outputs/apk/debug/app-debug.apk</code> to install via ADB.
+              </p>
+            </div>
+          </div>
+
+          {/* Terminal Commands Card */}
+          <div className="p-5 bg-slate-900 text-slate-100 rounded-xl space-y-3 font-mono text-xs">
+            <div className="text-slate-400 font-sans font-bold text-sm flex items-center justify-between">
+              <span>Terminal Fast-Build Commands</span>
+              <span className="text-xs bg-slate-800 text-emerald-400 px-2 py-0.5 rounded font-mono">Gradle 8.4 • JDK 17</span>
+            </div>
+            <div className="space-y-2">
+              <p className="text-slate-400 font-sans text-xs"># Navigate to android directory:</p>
+              <div className="p-2.5 bg-slate-950 rounded-lg text-emerald-400 select-all">
+                cd android
+              </div>
+
+              <p className="text-slate-400 font-sans text-xs mt-3"># Build Debug APK (macOS / Linux):</p>
+              <div className="p-2.5 bg-slate-950 rounded-lg text-emerald-400 select-all">
+                ./gradlew assembleDebug
+              </div>
+
+              <p className="text-slate-400 font-sans text-xs mt-3"># Build Debug APK (Windows PowerShell / CMD):</p>
+              <div className="p-2.5 bg-slate-950 rounded-lg text-emerald-400 select-all">
+                .\gradlew.bat assembleDebug
+              </div>
+
+              <p className="text-slate-400 font-sans text-xs mt-3"># Generated APK Output Location:</p>
+              <div className="p-2.5 bg-slate-950 rounded-lg text-blue-300 select-all">
+                android/app/build/outputs/apk/debug/app-debug.apk
+              </div>
+
+              <p className="text-slate-400 font-sans text-xs mt-3"># Install directly onto plugged phone or emulator:</p>
+              <div className="p-2.5 bg-slate-950 rounded-lg text-emerald-400 select-all">
+                adb install -r app/build/outputs/apk/debug/app-debug.apk
+              </div>
+            </div>
           </div>
         </div>
       )}
