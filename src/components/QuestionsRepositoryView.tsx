@@ -1,7 +1,7 @@
-import React, { useState, useMemo } from 'react';
+import React, { useState, useMemo, useEffect } from 'react';
 import { 
   HelpCircle, Tag, Search, CheckCircle2, AlertTriangle, Info, Copy, Check, 
-  ChevronDown, ChevronUp, Printer, Download, Sparkles
+  ChevronDown, ChevronUp, Printer, Download, Sparkles, Volume2, VolumeX
 } from 'lucide-react';
 import { VISA_CATEGORIES, VISA_QUESTIONS, VisaQuestion } from '../data/visaQuestions';
 
@@ -10,6 +10,35 @@ export const QuestionsRepositoryView: React.FC = () => {
   const [searchQuery, setSearchQuery] = useState<string>('');
   const [expandedIds, setExpandedIds] = useState<Set<string>>(new Set(['tp-01', 'tie-01']));
   const [copiedId, setCopiedId] = useState<string | null>(null);
+  const [speakingId, setSpeakingId] = useState<string | null>(null);
+
+  useEffect(() => {
+    return () => {
+      if ('speechSynthesis' in window) {
+        window.speechSynthesis.cancel();
+      }
+    };
+  }, []);
+
+  const handleSpeak = (text: string, id: string, e?: React.MouseEvent) => {
+    e?.stopPropagation();
+    if (!('speechSynthesis' in window)) return;
+
+    if (speakingId === id) {
+      window.speechSynthesis.cancel();
+      setSpeakingId(null);
+      return;
+    }
+
+    window.speechSynthesis.cancel();
+    const utterance = new SpeechSynthesisUtterance(text);
+    utterance.rate = 0.95;
+    utterance.pitch = 1.0;
+    utterance.onend = () => setSpeakingId(null);
+    utterance.onerror = () => setSpeakingId(null);
+    setSpeakingId(id);
+    window.speechSynthesis.speak(utterance);
+  };
 
   const toggleExpand = (id: string) => {
     setExpandedIds(prev => {
@@ -203,9 +232,23 @@ export const QuestionsRepositoryView: React.FC = () => {
                   <div className="grid grid-cols-1 lg:grid-cols-2 gap-4">
                     {/* Model Answer */}
                     <div className="bg-emerald-50/70 border border-emerald-200 rounded-xl p-4 space-y-2">
-                      <div className="flex items-center gap-2 text-emerald-800 font-bold text-xs">
-                        <CheckCircle2 className="w-4 h-4 text-emerald-600" />
-                        RECOMMENDED MODEL ANSWER (30 SECONDS)
+                      <div className="flex items-center justify-between">
+                        <div className="flex items-center gap-2 text-emerald-800 font-bold text-xs">
+                          <CheckCircle2 className="w-4 h-4 text-emerald-600" />
+                          RECOMMENDED MODEL ANSWER (30 SECONDS)
+                        </div>
+                        <button
+                          onClick={(e) => handleSpeak(q.sampleAnswer, q.id, e)}
+                          className={`flex items-center gap-1 px-2.5 py-1 rounded-md text-[11px] font-bold transition-all ${
+                            speakingId === q.id
+                              ? 'bg-emerald-600 text-white animate-pulse'
+                              : 'bg-white text-emerald-800 border border-emerald-300 hover:bg-emerald-100 shadow-2xs'
+                          }`}
+                          title="Listen to spoken model answer"
+                        >
+                          {speakingId === q.id ? <VolumeX className="w-3.5 h-3.5" /> : <Volume2 className="w-3.5 h-3.5" />}
+                          <span>{speakingId === q.id ? 'Stop' : 'Listen Cadence'}</span>
+                        </button>
                       </div>
                       <p className="text-slate-800 text-sm leading-relaxed italic bg-white/60 p-3 rounded-lg border border-emerald-100">
                         "{q.sampleAnswer}"

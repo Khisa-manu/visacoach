@@ -1,13 +1,14 @@
 import React, { useState } from 'react';
-import { Smartphone, BookOpen, HelpCircle, Code, Shield, Sparkles, Info } from 'lucide-react';
+import { Smartphone, BookOpen, HelpCircle, Code, Shield, Sparkles, Info, ShoppingBag } from 'lucide-react';
 import { AndroidInteractivePreview } from './components/AndroidInteractivePreview';
 import { QuestionsRepositoryView } from './components/QuestionsRepositoryView';
 import { GuidesView } from './components/GuidesView';
 import { AndroidArchitectureView } from './components/AndroidArchitectureView';
+import { PlayStoreKitView } from './components/PlayStoreKitView';
 import { AboutView } from './components/AboutView';
 
 export default function App() {
-  const [activeTab, setActiveTab] = useState<'MOBILE_PREVIEW' | 'QUESTIONS_CATALOG' | 'GUIDES' | 'ANDROID_CODE' | 'ABOUT'>('MOBILE_PREVIEW');
+  const [activeTab, setActiveTab] = useState<'MOBILE_PREVIEW' | 'QUESTIONS_CATALOG' | 'GUIDES' | 'PLAY_STORE' | 'ANDROID_CODE' | 'ABOUT'>('MOBILE_PREVIEW');
 
   return (
     <div className="min-h-screen bg-slate-50 text-slate-900 flex flex-col font-sans selection:bg-teal-100 selection:text-teal-900">
@@ -61,6 +62,15 @@ export default function App() {
               Strategy Guides
             </button>
             <button
+              onClick={() => setActiveTab('PLAY_STORE')}
+              className={`flex items-center gap-1.5 px-3 py-1.5 rounded-lg transition-all ${
+                activeTab === 'PLAY_STORE' ? 'bg-[#0A2540] text-white shadow-xs' : 'hover:text-slate-900'
+              }`}
+            >
+              <ShoppingBag className="w-3.5 h-3.5 text-teal-400" />
+              Play Store Kit
+            </button>
+            <button
               onClick={() => setActiveTab('ANDROID_CODE')}
               className={`flex items-center gap-1.5 px-3 py-1.5 rounded-lg transition-all ${
                 activeTab === 'ANDROID_CODE' ? 'bg-[#0A2540] text-white shadow-xs' : 'hover:text-slate-900'
@@ -99,13 +109,19 @@ export default function App() {
             onClick={() => setActiveTab('QUESTIONS_CATALOG')}
             className={`px-2 py-1 rounded-lg shrink-0 ${activeTab === 'QUESTIONS_CATALOG' ? 'bg-[#0A2540] text-white font-bold' : 'text-slate-600'}`}
           >
-            68 Questions
+            68 Q&amp;A
           </button>
           <button
             onClick={() => setActiveTab('GUIDES')}
             className={`px-2 py-1 rounded-lg shrink-0 ${activeTab === 'GUIDES' ? 'bg-[#0A2540] text-white font-bold' : 'text-slate-600'}`}
           >
             Guides
+          </button>
+          <button
+            onClick={() => setActiveTab('PLAY_STORE')}
+            className={`px-2 py-1 rounded-lg shrink-0 ${activeTab === 'PLAY_STORE' ? 'bg-[#0A2540] text-white font-bold' : 'text-slate-600'}`}
+          >
+            Play Store
           </button>
           <button
             onClick={() => setActiveTab('ANDROID_CODE')}
@@ -124,9 +140,15 @@ export default function App() {
 
       {/* Main Content Area */}
       <main className="flex-1 max-w-7xl w-full mx-auto px-4 sm:px-6 lg:px-8 py-8">
-        {activeTab === 'MOBILE_PREVIEW' && <AndroidInteractivePreview onOpenAbout={() => setActiveTab('ABOUT')} />}
+        {activeTab === 'MOBILE_PREVIEW' && (
+          <AndroidInteractivePreview 
+            onOpenAbout={() => setActiveTab('ABOUT')}
+            onOpenPlayStore={() => setActiveTab('PLAY_STORE')}
+          />
+        )}
         {activeTab === 'QUESTIONS_CATALOG' && <QuestionsRepositoryView />}
         {activeTab === 'GUIDES' && <GuidesView />}
+        {activeTab === 'PLAY_STORE' && <PlayStoreKitView />}
         {activeTab === 'ANDROID_CODE' && <AndroidArchitectureView />}
         {activeTab === 'ABOUT' && <AboutView />}
       </main>

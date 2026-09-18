@@ -1,27 +1,70 @@
-import React, { useState, useMemo } from 'react';
+import React, { useState, useMemo, useEffect } from 'react';
 import { 
   Search, Star, CheckCircle2, AlertTriangle, Info, ChevronDown, ChevronUp, 
-  BookOpen, Bookmark, Shield, Sparkles, Filter, X, ArrowLeft, Check, Share2, Copy
+  BookOpen, Bookmark, Shield, Sparkles, Filter, X, ArrowLeft, Check, Share2, Copy,
+  Volume2, VolumeX, Award, PlayCircle, Clock
 } from 'lucide-react';
 import { VISA_CATEGORIES, VISA_QUESTIONS, VISA_GUIDES, VisaQuestion, VisaGuideArticle } from '../data/visaQuestions';
+import { PhoneMockDrillView } from './PhoneMockDrillView';
 
 interface AndroidInteractivePreviewProps {
   onOpenAbout?: () => void;
+  onOpenPlayStore?: () => void;
 }
 
-export const AndroidInteractivePreview: React.FC<AndroidInteractivePreviewProps> = ({ onOpenAbout }) => {
-  const [activeTab, setActiveTab] = useState<'QUESTIONS' | 'GUIDES' | 'SAVED'>('QUESTIONS');
+export const AndroidInteractivePreview: React.FC<AndroidInteractivePreviewProps> = ({ 
+  onOpenAbout,
+  onOpenPlayStore 
+}) => {
+  const [activeTab, setActiveTab] = useState<'QUESTIONS' | 'DRILL' | 'GUIDES' | 'SAVED'>('QUESTIONS');
   const [selectedCategory, setSelectedCategory] = useState('ALL');
   const [searchQuery, setSearchQuery] = useState('');
   const [expandedId, setExpandedId] = useState<string | null>('tp-01');
   const [bookmarkedIds, setBookmarkedIds] = useState<string[]>(['tp-01', 'tie-01', 'fin-01']);
+  const [masteredIds, setMasteredIds] = useState<string[]>(['tp-01', 'fin-01']);
   const [selectedGuide, setSelectedGuide] = useState<VisaGuideArticle | null>(null);
   const [copiedId, setCopiedId] = useState<string | null>(null);
+  const [speakingId, setSpeakingId] = useState<string | null>(null);
   const [showPhoneAbout, setShowPhoneAbout] = useState(false);
+
+  // Stop speech when unmounting or switching tabs
+  useEffect(() => {
+    return () => {
+      if ('speechSynthesis' in window) {
+        window.speechSynthesis.cancel();
+      }
+    };
+  }, [activeTab]);
+
+  const handleSpeak = (text: string, id: string, e?: React.MouseEvent) => {
+    e?.stopPropagation();
+    if (!('speechSynthesis' in window)) return;
+
+    if (speakingId === id) {
+      window.speechSynthesis.cancel();
+      setSpeakingId(null);
+      return;
+    }
+
+    window.speechSynthesis.cancel();
+    const utterance = new SpeechSynthesisUtterance(text);
+    utterance.rate = 0.95;
+    utterance.pitch = 1.0;
+    utterance.onend = () => setSpeakingId(null);
+    utterance.onerror = () => setSpeakingId(null);
+    setSpeakingId(id);
+    window.speechSynthesis.speak(utterance);
+  };
 
   const toggleBookmark = (id: string, e?: React.MouseEvent) => {
     e?.stopPropagation();
     setBookmarkedIds(prev => 
+      prev.includes(id) ? prev.filter(item => item !== id) : [...prev, id]
+    );
+  };
+
+  const toggleMastered = (id: string) => {
+    setMasteredIds(prev => 
       prev.includes(id) ? prev.filter(item => item !== id) : [...prev, id]
     );
   };
@@ -147,6 +190,38 @@ export const AndroidInteractivePreview: React.FC<AndroidInteractivePreviewProps>
           <div className="flex-1 overflow-y-auto overscroll-contain">
             {activeTab === 'QUESTIONS' && (
               <div className="p-3 space-y-3">
+                {/* Consular Readiness Tracker Card */}
+                <div className="bg-gradient-to-r from-[#0A2540] to-slate-900 text-white rounded-2xl p-3.5 shadow-sm space-y-2">
+                  <div className="flex items-center justify-between">
+                    <div className="flex items-center gap-2">
+                      <div className="w-7 h-7 rounded-lg bg-teal-500/20 border border-teal-400/30 flex items-center justify-center">
+                        <Award className="w-4 h-4 text-teal-400" />
+                      </div>
+                      <div>
+                        <div className="text-xs font-bold">Interview Readiness</div>
+                        <div className="text-[10px] text-slate-300">
+                          {masteredIds.length} of 68 mastered ({Math.round((masteredIds.length / 68) * 100)}%)
+                        </div>
+                      </div>
+                    </div>
+                    <button
+                      onClick={() => setActiveTab('DRILL')}
+                      className="px-2.5 py-1 bg-teal-500 hover:bg-teal-400 text-slate-950 rounded-lg text-[10px] font-extrabold flex items-center gap-1 transition-all shadow-2xs"
+                    >
+                      <PlayCircle className="w-3 h-3" />
+                      <span>Start Drill</span>
+                    </button>
+                  </div>
+
+                  {/* Progress Track */}
+                  <div className="w-full bg-slate-700/60 rounded-full h-1.5 overflow-hidden">
+                    <div 
+                      className="bg-gradient-to-r from-teal-400 to-emerald-400 h-full rounded-full transition-all duration-500"
+                      style={{ width: `${Math.max(5, (masteredIds.length / 68) * 100)}%` }}
+                    />
+                  </div>
+                </div>
+
                 {/* Search Bar */}
                 <div className="relative">
                   <Search className="w-4 h-4 text-slate-400 absolute left-3 top-3" />
@@ -265,10 +340,24 @@ export const AndroidInteractivePreview: React.FC<AndroidInteractivePreviewProps>
                           {isExpanded && (
                             <div className="px-3 pb-3 pt-1 border-t border-slate-100 space-y-2.5 text-xs">
                               {/* Model Answer Box */}
-                              <div className="bg-emerald-50/80 rounded-lg p-2.5 border border-emerald-200/80">
-                                <div className="flex items-center gap-1.5 text-emerald-800 font-bold text-[11px] mb-1">
-                                  <CheckCircle2 className="w-3.5 h-3.5 text-emerald-600" />
-                                  <span>RECOMMENDED MODEL ANSWER</span>
+                              <div className="bg-emerald-50/80 rounded-lg p-2.5 border border-emerald-200/80 space-y-1.5">
+                                <div className="flex items-center justify-between">
+                                  <div className="flex items-center gap-1.5 text-emerald-800 font-bold text-[11px]">
+                                    <CheckCircle2 className="w-3.5 h-3.5 text-emerald-600" />
+                                    <span>RECOMMENDED MODEL ANSWER</span>
+                                  </div>
+                                  <button
+                                    onClick={(e) => handleSpeak(item.sampleAnswer, item.id, e)}
+                                    className={`flex items-center gap-1 px-2 py-0.5 rounded text-[10px] font-bold transition-all ${
+                                      speakingId === item.id 
+                                        ? 'bg-emerald-600 text-white animate-pulse' 
+                                        : 'bg-white text-emerald-800 border border-emerald-200 hover:bg-emerald-100'
+                                    }`}
+                                    title="Listen to spoken model answer"
+                                  >
+                                    {speakingId === item.id ? <VolumeX className="w-3 h-3" /> : <Volume2 className="w-3 h-3" />}
+                                    <span>{speakingId === item.id ? 'Stop' : 'Listen'}</span>
+                                  </button>
                                 </div>
                                 <p className="text-slate-800 text-[11.5px] leading-relaxed italic">
                                   "{item.sampleAnswer}"
@@ -308,12 +397,27 @@ export const AndroidInteractivePreview: React.FC<AndroidInteractivePreviewProps>
                                 {item.tips.join(' • ')}
                               </div>
 
-                              <button
-                                onClick={() => setExpandedId(null)}
-                                className="w-full py-1 text-center text-[10px] font-semibold text-slate-400 hover:text-slate-600 flex items-center justify-center gap-0.5"
-                              >
-                                Collapse <ChevronUp className="w-3 h-3" />
-                              </button>
+                              {/* Actions Bar */}
+                              <div className="flex items-center justify-between pt-1">
+                                <button
+                                  onClick={() => toggleMastered(item.id)}
+                                  className={`flex items-center gap-1 px-2.5 py-1 rounded-lg text-[10px] font-bold transition-all ${
+                                    masteredIds.includes(item.id)
+                                      ? 'bg-emerald-600 text-white'
+                                      : 'bg-slate-100 text-slate-700 hover:bg-slate-200'
+                                  }`}
+                                >
+                                  <Award className="w-3 h-3" />
+                                  <span>{masteredIds.includes(item.id) ? '✓ Mastered' : 'Mark Mastered'}</span>
+                                </button>
+
+                                <button
+                                  onClick={() => setExpandedId(null)}
+                                  className="py-1 text-center text-[10px] font-semibold text-slate-400 hover:text-slate-600 flex items-center justify-center gap-0.5"
+                                >
+                                  Collapse <ChevronUp className="w-3 h-3" />
+                                </button>
+                              </div>
                             </div>
                           )}
                         </div>
@@ -322,6 +426,17 @@ export const AndroidInteractivePreview: React.FC<AndroidInteractivePreviewProps>
                   )}
                 </div>
               </div>
+            )}
+
+            {/* Mock Consular Drill View */}
+            {activeTab === 'DRILL' && (
+              <PhoneMockDrillView
+                questions={VISA_QUESTIONS}
+                bookmarkedIds={bookmarkedIds}
+                onToggleBookmark={toggleBookmark}
+                masteredIds={masteredIds}
+                onToggleMastered={toggleMastered}
+              />
             )}
 
             {activeTab === 'GUIDES' && (
@@ -455,13 +570,20 @@ export const AndroidInteractivePreview: React.FC<AndroidInteractivePreviewProps>
           </div>
 
           {/* Bottom App Navigation Bar */}
-          <div className="bg-white border-t border-slate-200 px-3 py-2 flex items-center justify-around text-[10px] font-medium text-slate-600">
+          <div className="bg-white border-t border-slate-200 px-2 py-2 flex items-center justify-around text-[10px] font-medium text-slate-600">
             <button
               onClick={() => { setActiveTab('QUESTIONS'); setSelectedGuide(null); }}
               className={`flex flex-col items-center gap-0.5 ${activeTab === 'QUESTIONS' ? 'text-[#0A2540] font-bold' : 'hover:text-slate-900'}`}
             >
               <Search className="w-4 h-4" />
               <span>Questions</span>
+            </button>
+            <button
+              onClick={() => { setActiveTab('DRILL'); setSelectedGuide(null); }}
+              className={`flex flex-col items-center gap-0.5 ${activeTab === 'DRILL' ? 'text-teal-700 font-bold' : 'hover:text-slate-900'}`}
+            >
+              <PlayCircle className="w-4 h-4" />
+              <span>Mock Drill</span>
             </button>
             <button
               onClick={() => { setActiveTab('GUIDES'); setSelectedGuide(null); }}
@@ -527,8 +649,8 @@ export const AndroidInteractivePreview: React.FC<AndroidInteractivePreviewProps>
             </div>
           </div>
 
-          {/* Developer Attribution Card */}
-          <div className="pt-3 border-t border-slate-100 flex items-center justify-between">
+          {/* Developer Attribution & Play Store Ready Card */}
+          <div className="pt-3 border-t border-slate-100 flex flex-col sm:flex-row items-start sm:items-center justify-between gap-3">
             <div className="flex items-center gap-2.5">
               <div className="w-8 h-8 rounded-lg bg-[#0A2540] text-white flex items-center justify-center font-bold text-xs shadow-2xs">
                 PS
@@ -538,14 +660,25 @@ export const AndroidInteractivePreview: React.FC<AndroidInteractivePreviewProps>
                 <div className="text-xs font-bold text-slate-900">Developed by Paperglow systems</div>
               </div>
             </div>
-            {onOpenAbout && (
-              <button
-                onClick={onOpenAbout}
-                className="text-xs font-semibold text-teal-700 hover:text-teal-800 bg-teal-50 hover:bg-teal-100 px-2.5 py-1 rounded-lg border border-teal-200 transition-colors"
-              >
-                About &rarr;
-              </button>
-            )}
+            
+            <div className="flex items-center gap-1.5 w-full sm:w-auto justify-end">
+              {onOpenPlayStore && (
+                <button
+                  onClick={onOpenPlayStore}
+                  className="text-xs font-semibold text-emerald-800 hover:text-emerald-900 bg-emerald-50 hover:bg-emerald-100 px-2.5 py-1 rounded-lg border border-emerald-200 transition-colors flex items-center gap-1"
+                >
+                  <span>Play Store Kit</span> &rarr;
+                </button>
+              )}
+              {onOpenAbout && (
+                <button
+                  onClick={onOpenAbout}
+                  className="text-xs font-semibold text-teal-700 hover:text-teal-800 bg-teal-50 hover:bg-teal-100 px-2.5 py-1 rounded-lg border border-teal-200 transition-colors"
+                >
+                  About
+                </button>
+              )}
+            </div>
           </div>
         </div>
 
