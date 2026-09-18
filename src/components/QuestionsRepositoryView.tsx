@@ -1,191 +1,252 @@
-import React, { useState } from 'react';
-import { HelpCircle, Tag, Search, CheckCircle } from 'lucide-react';
-
-interface QuestionSeed {
-  category: string;
-  categoryLabel: string;
-  questions: string[];
-}
-
-const SEED_QUESTIONS: QuestionSeed[] = [
-  {
-    category: "TRAVEL_PURPOSE",
-    categoryLabel: "1. Purpose of Travel",
-    questions: [
-      "What is the specific purpose of your trip to the United States?",
-      "Why are you traveling at this particular time of year?",
-      "What specific cities or tourist destinations do you intend to visit?",
-      "How long do you plan to remain in the United States?",
-      "Have you already purchased your flight tickets or made hotel bookings?",
-      "Are you attending any specific event, conference, or personal celebration?"
-    ]
-  },
-  {
-    category: "EMPLOYMENT",
-    categoryLabel: "2. Employment & Occupation",
-    questions: [
-      "What is your current occupation and who is your employer in Kenya?",
-      "How long have you been employed with your current organization?",
-      "What are your core day-to-day duties and responsibilities?",
-      "Has your employer approved your annual leave for this travel window?",
-      "If self-employed, what is the nature of your business and how long has it operated?",
-      "Who will manage your professional duties while you are away?"
-    ]
-  },
-  {
-    category: "FINANCIAL_ABILITY",
-    categoryLabel: "3. Financial Ability & Funding",
-    questions: [
-      "Who will be paying for the expenses of your trip?",
-      "What is your estimated total budget for this visit in USD or KES?",
-      "What is your monthly or annual income from your employment or business?",
-      "Can you explain the primary source of funds in your bank account?",
-      "If a sponsor is assisting with costs, what is your relationship to them?"
-    ]
-  },
-  {
-    category: "ACCOMMODATION",
-    categoryLabel: "4. Accommodation & Itinerary",
-    questions: [
-      "Where will you be staying during your stay in the United States?",
-      "Do you have confirmed reservations at a hotel, Airbnb, or private residence?",
-      "What activities or itinerary do you have planned during your visit?",
-      "How will you be traveling between different cities during your stay?"
-    ]
-  },
-  {
-    category: "TIES_TO_HOME_COUNTRY",
-    categoryLabel: "5. Ties to Home Country (Kenya)",
-    questions: [
-      "What family members will remain in Kenya while you travel?",
-      "Do you own real estate, property, land, or significant assets in Kenya?",
-      "What strong commitments guarantee that you will return to Kenya after your visit?",
-      "What ongoing career obligations require your physical return?"
-    ]
-  },
-  {
-    category: "TRAVEL_HISTORY",
-    categoryLabel: "6. International Travel History",
-    questions: [
-      "Have you previously traveled outside of Kenya?",
-      "Which countries have you visited over the past five years and for what purpose?",
-      "Did you return to Kenya within the authorized stay period on your previous travels?",
-      "Have you ever traveled to the United States before?"
-    ]
-  },
-  {
-    category: "US_CONNECTIONS",
-    categoryLabel: "7. Family & Contacts in the U.S.",
-    questions: [
-      "Do you have any immediate or extended relatives residing in the United States?",
-      "What is the immigration status of your relatives in the U.S. (citizen, LPR, visa)?",
-      "Do you have personal friends or professional associates in the United States?",
-      "Will you be staying with any relatives or friends during your trip?"
-    ]
-  },
-  {
-    category: "RETURN_INTENT",
-    categoryLabel: "8. Return Intent & Timeline",
-    questions: [
-      "On what exact date do you intend to return to Kenya?",
-      "When are you expected to resume work at your job in Nairobi?",
-      "Why would you not remain in the United States past your authorized stay?"
-    ]
-  },
-  {
-    category: "MARITAL_STATUS",
-    categoryLabel: "9. Marital Status & Family Ties",
-    questions: [
-      "Are you married, and does your spouse reside with you in Kenya?",
-      "Do you have children in Kenya, and what are their ages?",
-      "Will your spouse or children be accompanying you on this trip or staying in Kenya?"
-    ]
-  },
-  {
-    category: "SPECIAL_CIRCUMSTANCES",
-    categoryLabel: "10. Special Inquiries & Follow-ups",
-    questions: [
-      "Have you ever had a previous U.S. visa refusal under INA Section 214(b)?",
-      "If previously refused, what circumstances in your life have changed since your last application?",
-      "Has anyone ever filed an immigrant petition on your behalf?"
-    ]
-  }
-];
+import React, { useState, useMemo } from 'react';
+import { 
+  HelpCircle, Tag, Search, CheckCircle2, AlertTriangle, Info, Copy, Check, 
+  ChevronDown, ChevronUp, Printer, Download, Sparkles
+} from 'lucide-react';
+import { VISA_CATEGORIES, VISA_QUESTIONS, VisaQuestion } from '../data/visaQuestions';
 
 export const QuestionsRepositoryView: React.FC = () => {
-  const [selectedCategory, setSelectedCategory] = useState<string>("ALL");
-  const [searchQuery, setSearchQuery] = useState("");
+  const [selectedCategory, setSelectedCategory] = useState<string>('ALL');
+  const [searchQuery, setSearchQuery] = useState<string>('');
+  const [expandedIds, setExpandedIds] = useState<Set<string>>(new Set(['tp-01', 'tie-01']));
+  const [copiedId, setCopiedId] = useState<string | null>(null);
 
-  const filteredCategories = SEED_QUESTIONS.filter(cat => {
-    if (selectedCategory !== "ALL" && cat.category !== selectedCategory) return false;
-    return true;
-  });
+  const toggleExpand = (id: string) => {
+    setExpandedIds(prev => {
+      const next = new Set(prev);
+      if (next.has(id)) next.delete(id);
+      else next.add(id);
+      return next;
+    });
+  };
+
+  const expandAll = () => {
+    setExpandedIds(new Set(filteredQuestions.map(q => q.id)));
+  };
+
+  const collapseAll = () => {
+    setExpandedIds(new Set());
+  };
+
+  const handleCopy = (text: string, id: string) => {
+    navigator.clipboard.writeText(text);
+    setCopiedId(id);
+    setTimeout(() => setCopiedId(null), 2000);
+  };
+
+  const filteredQuestions = useMemo(() => {
+    const q = searchQuery.toLowerCase().trim();
+    return VISA_QUESTIONS.filter(item => {
+      const matchesCategory = selectedCategory === 'ALL' || item.category === selectedCategory;
+      const matchesQuery = !q || 
+        item.question.toLowerCase().includes(q) ||
+        item.sampleAnswer.toLowerCase().includes(q) ||
+        item.officerIntent.toLowerCase().includes(q) ||
+        item.shortSummary.toLowerCase().includes(q);
+      return matchesCategory && matchesQuery;
+    });
+  }, [searchQuery, selectedCategory]);
 
   return (
-    <div className="bg-white border border-slate-200 rounded-2xl p-6 shadow-sm">
-      <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4 pb-5 border-b border-slate-100">
-        <div>
-          <div className="flex items-center gap-2">
-            <span className="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-semibold bg-indigo-50 text-indigo-700 border border-indigo-200">
-              Database Seed V3
-            </span>
-            <span className="text-xs text-slate-500 font-mono">55 Curated Questions</span>
+    <div className="space-y-6">
+      {/* Header Banner */}
+      <div className="bg-white border border-slate-200 rounded-2xl p-6 shadow-xs">
+        <div className="flex flex-col md:flex-row md:items-center justify-between gap-4">
+          <div>
+            <div className="flex items-center gap-2">
+              <span className="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-semibold bg-teal-50 text-teal-700 border border-teal-200">
+                Official Consular Prep Manual
+              </span>
+              <span className="text-xs text-slate-500 font-medium">68 Questions with Model Answers</span>
+            </div>
+            <h2 className="text-2xl font-bold text-slate-900 mt-1">
+              Complete U.S. Visa Interview Question Bank
+            </h2>
+            <p className="text-sm text-slate-600 mt-1 max-w-3xl leading-relaxed">
+              Every question includes the consular officer's underlying psychological intent under INA Section 214(b), a recommended 30-second model answer, and fatal red flag traps to avoid.
+            </p>
           </div>
-          <h2 className="text-xl font-bold text-slate-900 mt-1">B1/B2 Consular Question Bank</h2>
-          <p className="text-sm text-slate-600">The 55 seed questions populated via Flyway migration V3 for real-time interview simulations.</p>
+
+          <div className="flex items-center gap-2">
+            <button
+              onClick={expandAll}
+              className="px-3 py-1.5 text-xs font-semibold bg-slate-100 text-slate-700 hover:bg-slate-200 rounded-lg transition-colors"
+            >
+              Expand All
+            </button>
+            <button
+              onClick={collapseAll}
+              className="px-3 py-1.5 text-xs font-semibold bg-slate-100 text-slate-700 hover:bg-slate-200 rounded-lg transition-colors"
+            >
+              Collapse All
+            </button>
+            <button
+              onClick={() => window.print()}
+              className="flex items-center gap-1.5 px-3 py-1.5 text-xs font-semibold bg-[#0A2540] text-white hover:bg-slate-800 rounded-lg transition-colors"
+            >
+              <Printer className="w-3.5 h-3.5" />
+              Print
+            </button>
+          </div>
         </div>
 
-        <div className="flex flex-wrap gap-2">
-          <button
-            onClick={() => setSelectedCategory("ALL")}
-            className={`px-3 py-1.5 rounded-lg text-xs font-semibold transition-all ${selectedCategory === "ALL" ? "bg-slate-900 text-white" : "bg-slate-100 text-slate-600 hover:bg-slate-200"}`}
-          >
-            All 10 Categories
-          </button>
-          <button
-            onClick={() => setSelectedCategory("TRAVEL_PURPOSE")}
-            className={`px-3 py-1.5 rounded-lg text-xs font-semibold transition-all ${selectedCategory === "TRAVEL_PURPOSE" ? "bg-slate-900 text-white" : "bg-slate-100 text-slate-600 hover:bg-slate-200"}`}
-          >
-            Purpose
-          </button>
-          <button
-            onClick={() => setSelectedCategory("EMPLOYMENT")}
-            className={`px-3 py-1.5 rounded-lg text-xs font-semibold transition-all ${selectedCategory === "EMPLOYMENT" ? "bg-slate-900 text-white" : "bg-slate-100 text-slate-600 hover:bg-slate-200"}`}
-          >
-            Employment
-          </button>
-          <button
-            onClick={() => setSelectedCategory("FINANCIAL_ABILITY")}
-            className={`px-3 py-1.5 rounded-lg text-xs font-semibold transition-all ${selectedCategory === "FINANCIAL_ABILITY" ? "bg-slate-900 text-white" : "bg-slate-100 text-slate-600 hover:bg-slate-200"}`}
-          >
-            Finances
-          </button>
-          <button
-            onClick={() => setSelectedCategory("TIES_TO_HOME_COUNTRY")}
-            className={`px-3 py-1.5 rounded-lg text-xs font-semibold transition-all ${selectedCategory === "TIES_TO_HOME_COUNTRY" ? "bg-slate-900 text-white" : "bg-slate-100 text-slate-600 hover:bg-slate-200"}`}
-          >
-            Ties to Kenya
-          </button>
+        {/* Search & Category Filter Bar */}
+        <div className="mt-6 pt-5 border-t border-slate-100 space-y-3">
+          <div className="relative">
+            <Search className="w-4 h-4 text-slate-400 absolute left-3 top-3.5" />
+            <input
+              type="text"
+              placeholder="Search across questions, sample answers, officer intent, or red flags..."
+              value={searchQuery}
+              onChange={(e) => setSearchQuery(e.target.value)}
+              className="w-full pl-9 pr-4 py-2.5 bg-slate-50 text-sm text-slate-800 rounded-xl border border-slate-200 focus:outline-none focus:border-[#0A2540] focus:bg-white"
+            />
+          </div>
+
+          <div className="flex gap-2 overflow-x-auto pb-1 no-scrollbar text-xs">
+            {VISA_CATEGORIES.map(cat => (
+              <button
+                key={cat.id}
+                onClick={() => setSelectedCategory(cat.id)}
+                className={`whitespace-nowrap px-3 py-1.5 rounded-lg font-medium transition-all ${
+                  selectedCategory === cat.id
+                    ? 'bg-[#0A2540] text-white shadow-xs'
+                    : 'bg-slate-100 text-slate-600 hover:bg-slate-200'
+                }`}
+              >
+                {cat.name} ({cat.count})
+              </button>
+            ))}
+          </div>
         </div>
       </div>
 
-      <div className="py-6 space-y-6">
-        {filteredCategories.map(cat => (
-          <div key={cat.category} className="space-y-3">
-            <div className="flex items-center gap-2">
-              <span className="text-sm font-bold text-slate-900">{cat.categoryLabel}</span>
-              <span className="text-xs text-slate-400 font-mono">({cat.questions.length} questions)</span>
-            </div>
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-2.5">
-              {cat.questions.map((q, idx) => (
-                <div key={idx} className="p-3 bg-slate-50 border border-slate-100 rounded-xl text-xs text-slate-800 flex items-start gap-2.5 hover:bg-slate-100/70 transition-colors">
-                  <span className="text-blue-600 font-bold shrink-0">Q{idx + 1}.</span>
-                  <span className="leading-relaxed">{q}</span>
+      {/* Results Count */}
+      <div className="flex items-center justify-between px-2 text-xs font-semibold text-slate-500">
+        <span>Showing {filteredQuestions.length} of {VISA_QUESTIONS.length} Questions</span>
+        {searchQuery && <span>Filter applied: "{searchQuery}"</span>}
+      </div>
+
+      {/* Questions List */}
+      <div className="space-y-4">
+        {filteredQuestions.map((q, index) => {
+          const isExpanded = expandedIds.has(q.id);
+
+          return (
+            <div
+              key={q.id}
+              className={`bg-white border rounded-2xl transition-all ${
+                isExpanded ? 'border-teal-500/30 shadow-xs ring-1 ring-teal-500/10' : 'border-slate-200 hover:border-slate-300'
+              }`}
+            >
+              {/* Question Header Card */}
+              <div 
+                className="p-5 cursor-pointer flex flex-col md:flex-row md:items-center justify-between gap-4 select-none"
+                onClick={() => toggleExpand(q.id)}
+              >
+                <div className="flex items-start gap-3.5">
+                  <span className="w-7 h-7 rounded-lg bg-slate-100 text-slate-700 flex items-center justify-center text-xs font-bold shrink-0 mt-0.5">
+                    {index + 1}
+                  </span>
+                  <div>
+                    <div className="flex items-center gap-2 mb-1">
+                      <span className={`text-[11px] font-bold px-2 py-0.5 rounded ${
+                        q.category === 'RED_FLAGS'
+                          ? 'bg-rose-50 text-rose-700 border border-rose-200'
+                          : q.category === 'TIES_214B'
+                          ? 'bg-emerald-50 text-emerald-700 border border-emerald-200'
+                          : 'bg-sky-50 text-sky-700 border border-sky-200'
+                      }`}>
+                        {q.categoryName}
+                      </span>
+                      <span className="text-xs text-slate-400">•</span>
+                      <span className="text-xs text-slate-500">{q.shortSummary}</span>
+                    </div>
+                    <h3 className="font-bold text-base text-slate-900 leading-snug">
+                      {q.question}
+                    </h3>
+                  </div>
                 </div>
-              ))}
+
+                <div className="flex items-center gap-3 shrink-0 self-end md:self-center">
+                  <button
+                    onClick={(e) => {
+                      e.stopPropagation();
+                      handleCopy(`${q.question}\n\nModel Answer:\n${q.sampleAnswer}\n\nOfficer Intent:\n${q.officerIntent}`, q.id);
+                    }}
+                    className="flex items-center gap-1 text-xs text-slate-500 hover:text-slate-700 p-1.5 rounded-lg hover:bg-slate-100"
+                    title="Copy full question and answer"
+                  >
+                    {copiedId === q.id ? (
+                      <>
+                        <Check className="w-3.5 h-3.5 text-emerald-600" />
+                        <span className="text-emerald-600 font-semibold text-xs">Copied</span>
+                      </>
+                    ) : (
+                      <>
+                        <Copy className="w-3.5 h-3.5" />
+                        <span className="text-xs">Copy</span>
+                      </>
+                    )}
+                  </button>
+
+                  <div className="flex items-center gap-1 text-xs font-semibold text-teal-600">
+                    {isExpanded ? 'Hide Details' : 'View Model Answer'}
+                    {isExpanded ? <ChevronUp className="w-4 h-4" /> : <ChevronDown className="w-4 h-4" />}
+                  </div>
+                </div>
+              </div>
+
+              {/* Expanded Breakdown */}
+              {isExpanded && (
+                <div className="px-5 pb-5 pt-2 border-t border-slate-100 space-y-4 text-xs">
+                  <div className="grid grid-cols-1 lg:grid-cols-2 gap-4">
+                    {/* Model Answer */}
+                    <div className="bg-emerald-50/70 border border-emerald-200 rounded-xl p-4 space-y-2">
+                      <div className="flex items-center gap-2 text-emerald-800 font-bold text-xs">
+                        <CheckCircle2 className="w-4 h-4 text-emerald-600" />
+                        RECOMMENDED MODEL ANSWER (30 SECONDS)
+                      </div>
+                      <p className="text-slate-800 text-sm leading-relaxed italic bg-white/60 p-3 rounded-lg border border-emerald-100">
+                        "{q.sampleAnswer}"
+                      </p>
+                      <div className="text-[11px] text-emerald-900 font-medium">
+                        Tips: {q.tips.join(' • ')}
+                      </div>
+                    </div>
+
+                    {/* Consular Officer Intent */}
+                    <div className="bg-sky-50/70 border border-sky-200 rounded-xl p-4 space-y-2">
+                      <div className="flex items-center gap-2 text-sky-800 font-bold text-xs">
+                        <Info className="w-4 h-4 text-sky-600" />
+                        WHAT THE CONSULAR OFFICER IS REALLY TESTING
+                      </div>
+                      <p className="text-slate-700 text-xs leading-relaxed bg-white/60 p-3 rounded-lg border border-sky-100">
+                        {q.officerIntent}
+                      </p>
+                    </div>
+                  </div>
+
+                  {/* Red Flags & Fatal Pitfalls */}
+                  <div className="bg-rose-50/70 border border-rose-200 rounded-xl p-4 space-y-2">
+                    <div className="flex items-center gap-2 text-rose-800 font-bold text-xs">
+                      <AlertTriangle className="w-4 h-4 text-rose-600" />
+                      FATAL PITFALLS &amp; WHAT NOT TO SAY
+                    </div>
+                    <div className="grid grid-cols-1 md:grid-cols-2 gap-2 text-xs text-rose-950">
+                      {q.redFlags.map((flag, idx) => (
+                        <div key={idx} className="flex items-start gap-2 bg-white/60 p-2.5 rounded-lg border border-rose-100">
+                          <span className="text-rose-500 font-bold leading-tight">•</span>
+                          <span className="leading-snug">{flag}</span>
+                        </div>
+                      ))}
+                    </div>
+                  </div>
+                </div>
+              )}
             </div>
-          </div>
-        ))}
+          );
+        })}
       </div>
     </div>
   );

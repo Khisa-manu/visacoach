@@ -1,131 +1,146 @@
 import React, { useState } from 'react';
-import { Smartphone, Server, Mic, HelpCircle, ShieldCheck, DollarSign, Terminal, Github, ExternalLink, Sparkles } from 'lucide-react';
-import { LiveSimulator } from './components/LiveSimulator';
+import { Smartphone, BookOpen, HelpCircle, Code, Shield, Sparkles, Info } from 'lucide-react';
 import { AndroidInteractivePreview } from './components/AndroidInteractivePreview';
-import { AndroidArchitectureView } from './components/AndroidArchitectureView';
-import { BackendArchitectureView } from './components/BackendArchitectureView';
 import { QuestionsRepositoryView } from './components/QuestionsRepositoryView';
+import { GuidesView } from './components/GuidesView';
+import { AndroidArchitectureView } from './components/AndroidArchitectureView';
+import { AboutView } from './components/AboutView';
 
 export default function App() {
-  const [activeTab, setActiveTab] = useState<'PREVIEW' | 'SIMULATOR' | 'ANDROID' | 'BACKEND' | 'QUESTIONS'>('PREVIEW');
+  const [activeTab, setActiveTab] = useState<'MOBILE_PREVIEW' | 'QUESTIONS_CATALOG' | 'GUIDES' | 'ANDROID_CODE' | 'ABOUT'>('MOBILE_PREVIEW');
 
   return (
-    <div className="min-h-screen bg-slate-50 text-slate-900 flex flex-col font-sans selection:bg-blue-100 selection:text-blue-900">
-      {/* Top Brand Navigation Bar */}
+    <div className="min-h-screen bg-slate-50 text-slate-900 flex flex-col font-sans selection:bg-teal-100 selection:text-teal-900">
+      {/* Top Navigation Bar */}
       <header className="sticky top-0 z-40 bg-white/95 backdrop-blur border-b border-slate-200">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 h-16 flex items-center justify-between">
           <div className="flex items-center gap-3">
-            <div className="w-9 h-9 bg-[#0A192F] text-white rounded-xl flex items-center justify-center font-black text-base shadow-sm">
-              VC
+            <div className="w-9 h-9 bg-[#0A2540] text-white rounded-xl flex items-center justify-center font-black text-sm shadow-xs tracking-tight">
+              VG
             </div>
             <div>
               <div className="flex items-center gap-2">
-                <h1 className="font-bold text-slate-900 text-base leading-tight">USA VisaCoach</h1>
+                <h1 className="font-bold text-slate-900 text-base leading-tight">USA Visa Interview Guide</h1>
                 <span className="text-[10px] uppercase font-bold tracking-wider px-2 py-0.5 bg-teal-50 text-teal-700 rounded-full border border-teal-200">
-                  Android &amp; Spring Boot Suite
+                  Static • 100% Offline
                 </span>
               </div>
-              <p className="text-xs text-slate-500">B1/B2 Real-Time Voice Interview Platform • Kenyan Safaricom M-Pesa Integration</p>
+              <p className="text-xs text-slate-500">
+                Developed by Paperglow systems • 68 Questions, Model Answers &amp; INA 214(b) Decoded
+              </p>
             </div>
           </div>
 
+          {/* Desktop Tab Switcher */}
           <div className="hidden md:flex items-center gap-1 bg-slate-100 p-1 rounded-xl text-xs font-semibold text-slate-600">
             <button
-              onClick={() => setActiveTab('PREVIEW')}
-              className={`flex items-center gap-1.5 px-3 py-1.5 rounded-lg transition-all ${activeTab === 'PREVIEW' ? 'bg-[#0A192F] text-white shadow-sm' : 'hover:text-slate-900'}`}
+              onClick={() => setActiveTab('MOBILE_PREVIEW')}
+              className={`flex items-center gap-1.5 px-3 py-1.5 rounded-lg transition-all ${
+                activeTab === 'MOBILE_PREVIEW' ? 'bg-[#0A2540] text-white shadow-xs' : 'hover:text-slate-900'
+              }`}
             >
               <Smartphone className="w-3.5 h-3.5 text-teal-400" />
-              Android App Preview
+              Mobile App Simulator
             </button>
             <button
-              onClick={() => setActiveTab('SIMULATOR')}
-              className={`flex items-center gap-1.5 px-3 py-1.5 rounded-lg transition-all ${activeTab === 'SIMULATOR' ? 'bg-[#0A192F] text-white shadow-sm' : 'hover:text-slate-900'}`}
+              onClick={() => setActiveTab('QUESTIONS_CATALOG')}
+              className={`flex items-center gap-1.5 px-3 py-1.5 rounded-lg transition-all ${
+                activeTab === 'QUESTIONS_CATALOG' ? 'bg-[#0A2540] text-white shadow-xs' : 'hover:text-slate-900'
+              }`}
             >
-              <Mic className="w-3.5 h-3.5 text-teal-400" />
-              Live Voice Simulator
+              <HelpCircle className="w-3.5 h-3.5 text-teal-400" />
+              68 Questions &amp; Answers
             </button>
             <button
-              onClick={() => setActiveTab('ANDROID')}
-              className={`flex items-center gap-1.5 px-3 py-1.5 rounded-lg transition-all ${activeTab === 'ANDROID' ? 'bg-[#0A192F] text-white shadow-sm' : 'hover:text-slate-900'}`}
+              onClick={() => setActiveTab('GUIDES')}
+              className={`flex items-center gap-1.5 px-3 py-1.5 rounded-lg transition-all ${
+                activeTab === 'GUIDES' ? 'bg-[#0A2540] text-white shadow-xs' : 'hover:text-slate-900'
+              }`}
             >
-              <Smartphone className="w-3.5 h-3.5" />
-              Android Code (16 Screens)
+              <BookOpen className="w-3.5 h-3.5 text-teal-400" />
+              Strategy Guides
             </button>
             <button
-              onClick={() => setActiveTab('BACKEND')}
-              className={`flex items-center gap-1.5 px-3 py-1.5 rounded-lg transition-all ${activeTab === 'BACKEND' ? 'bg-[#0A192F] text-white shadow-sm' : 'hover:text-slate-900'}`}
+              onClick={() => setActiveTab('ANDROID_CODE')}
+              className={`flex items-center gap-1.5 px-3 py-1.5 rounded-lg transition-all ${
+                activeTab === 'ANDROID_CODE' ? 'bg-[#0A2540] text-white shadow-xs' : 'hover:text-slate-900'
+              }`}
             >
-              <Server className="w-3.5 h-3.5" />
-              Spring Boot &amp; MySQL
+              <Code className="w-3.5 h-3.5 text-teal-400" />
+              Android Studio Code
             </button>
             <button
-              onClick={() => setActiveTab('QUESTIONS')}
-              className={`flex items-center gap-1.5 px-3 py-1.5 rounded-lg transition-all ${activeTab === 'QUESTIONS' ? 'bg-[#0A192F] text-white shadow-sm' : 'hover:text-slate-900'}`}
+              onClick={() => setActiveTab('ABOUT')}
+              className={`flex items-center gap-1.5 px-3 py-1.5 rounded-lg transition-all ${
+                activeTab === 'ABOUT' ? 'bg-[#0A2540] text-white shadow-xs' : 'hover:text-slate-900'
+              }`}
             >
-              <HelpCircle className="w-3.5 h-3.5" />
-              55 B1/B2 Questions
+              <Info className="w-3.5 h-3.5 text-teal-400" />
+              About
             </button>
           </div>
 
-          <div className="flex items-center gap-2">
-            <span className="text-xs font-mono font-medium px-2.5 py-1 bg-emerald-50 text-emerald-700 rounded-lg border border-emerald-200">
-              Safaricom Daraja API
-            </span>
+          {/* Offline Badge & Credits */}
+          <div className="hidden sm:flex items-center gap-1.5 px-2.5 py-1 bg-slate-100 text-slate-700 rounded-lg text-xs font-medium border border-slate-200">
+            <Shield className="w-3.5 h-3.5 text-teal-600" />
+            <span>Paperglow systems</span>
           </div>
         </div>
 
-        {/* Mobile Navigation Pills */}
-        <div className="md:hidden flex items-center justify-around p-2 bg-slate-100 border-t border-slate-200 text-xs font-medium">
+        {/* Mobile Navigation Tabs */}
+        <div className="md:hidden flex items-center justify-around p-2 bg-slate-100 border-t border-slate-200 text-xs font-medium overflow-x-auto no-scrollbar">
           <button
-            onClick={() => setActiveTab('PREVIEW')}
-            className={`px-2.5 py-1 rounded-lg ${activeTab === 'PREVIEW' ? 'bg-[#0A192F] text-white shadow-sm font-bold' : 'text-slate-600'}`}
+            onClick={() => setActiveTab('MOBILE_PREVIEW')}
+            className={`px-2 py-1 rounded-lg shrink-0 ${activeTab === 'MOBILE_PREVIEW' ? 'bg-[#0A2540] text-white font-bold' : 'text-slate-600'}`}
           >
-            App Preview
+            Preview
           </button>
           <button
-            onClick={() => setActiveTab('SIMULATOR')}
-            className={`px-2.5 py-1 rounded-lg ${activeTab === 'SIMULATOR' ? 'bg-[#0A192F] text-white shadow-sm font-bold' : 'text-slate-600'}`}
+            onClick={() => setActiveTab('QUESTIONS_CATALOG')}
+            className={`px-2 py-1 rounded-lg shrink-0 ${activeTab === 'QUESTIONS_CATALOG' ? 'bg-[#0A2540] text-white font-bold' : 'text-slate-600'}`}
           >
-            Simulator
+            68 Questions
           </button>
           <button
-            onClick={() => setActiveTab('ANDROID')}
-            className={`px-2.5 py-1 rounded-lg ${activeTab === 'ANDROID' ? 'bg-[#0A192F] text-white shadow-sm font-bold' : 'text-slate-600'}`}
+            onClick={() => setActiveTab('GUIDES')}
+            className={`px-2 py-1 rounded-lg shrink-0 ${activeTab === 'GUIDES' ? 'bg-[#0A2540] text-white font-bold' : 'text-slate-600'}`}
+          >
+            Guides
+          </button>
+          <button
+            onClick={() => setActiveTab('ANDROID_CODE')}
+            className={`px-2 py-1 rounded-lg shrink-0 ${activeTab === 'ANDROID_CODE' ? 'bg-[#0A2540] text-white font-bold' : 'text-slate-600'}`}
           >
             Android
           </button>
           <button
-            onClick={() => setActiveTab('BACKEND')}
-            className={`px-2.5 py-1 rounded-lg ${activeTab === 'BACKEND' ? 'bg-[#0A192F] text-white shadow-sm font-bold' : 'text-slate-600'}`}
+            onClick={() => setActiveTab('ABOUT')}
+            className={`px-2 py-1 rounded-lg shrink-0 ${activeTab === 'ABOUT' ? 'bg-[#0A2540] text-white font-bold' : 'text-slate-600'}`}
           >
-            Backend
-          </button>
-          <button
-            onClick={() => setActiveTab('QUESTIONS')}
-            className={`px-2.5 py-1 rounded-lg ${activeTab === 'QUESTIONS' ? 'bg-[#0A192F] text-white shadow-sm font-bold' : 'text-slate-600'}`}
-          >
-            Questions
+            About
           </button>
         </div>
       </header>
 
-      {/* Main Content Viewport */}
-      <main className="flex-1 max-w-7xl w-full mx-auto px-4 sm:px-6 lg:px-8 py-8 space-y-8">
-        {activeTab === 'PREVIEW' && <AndroidInteractivePreview />}
-        {activeTab === 'SIMULATOR' && <LiveSimulator />}
-        {activeTab === 'ANDROID' && <AndroidArchitectureView />}
-        {activeTab === 'BACKEND' && <BackendArchitectureView />}
-        {activeTab === 'QUESTIONS' && <QuestionsRepositoryView />}
+      {/* Main Content Area */}
+      <main className="flex-1 max-w-7xl w-full mx-auto px-4 sm:px-6 lg:px-8 py-8">
+        {activeTab === 'MOBILE_PREVIEW' && <AndroidInteractivePreview onOpenAbout={() => setActiveTab('ABOUT')} />}
+        {activeTab === 'QUESTIONS_CATALOG' && <QuestionsRepositoryView />}
+        {activeTab === 'GUIDES' && <GuidesView />}
+        {activeTab === 'ANDROID_CODE' && <AndroidArchitectureView />}
+        {activeTab === 'ABOUT' && <AboutView />}
       </main>
 
-      {/* Professional Footer */}
-      <footer className="border-t border-slate-200 bg-white py-6">
+      {/* Footer */}
+      <footer className="border-t border-slate-200 bg-white py-6 mt-auto">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 flex flex-col sm:flex-row items-center justify-between gap-4 text-xs text-slate-500">
-          <div>
-            <span className="font-semibold text-slate-700">USA VisaCoach</span> — Clean Architecture Android &amp; Spring Boot Suite
+          <div className="flex items-center gap-2">
+            <span className="font-semibold text-slate-700">USA Visa Interview Guide</span>
+            <span>•</span>
+            <span className="text-slate-600 font-medium">Developed by Paperglow systems</span>
           </div>
           <div className="text-center sm:text-right">
-            Educational training platform for B1/B2 applicants in Kenya. Not affiliated with the U.S. Department of State.
+            Educational guide based on U.S. Immigration and Nationality Act (INA 214(b)) and official Foreign Affairs Manual (FAM).
           </div>
         </div>
       </footer>
