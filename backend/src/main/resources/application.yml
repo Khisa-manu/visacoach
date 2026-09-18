@@ -1,0 +1,55 @@
+server:
+  port: 8080
+
+spring:
+  application:
+    name: visacoach-backend
+  datasource:
+    url: jdbc:mysql://${MYSQL_HOST:localhost}:${MYSQL_PORT:3306}/${MYSQL_DATABASE:visacoach}?useSSL=false&allowPublicKeyRetrieval=true&serverTimezone=UTC&characterEncoding=UTF-8
+    username: ${MYSQL_USER:visacoach_user}
+    password: ${MYSQL_PASSWORD:visacoach_secret}
+    driver-class-name: com.mysql.cj.jdbc.Driver
+    hikari:
+      maximum-pool-size: 20
+      minimum-idle: 5
+      idle-timeout: 300000
+      connection-timeout: 20000
+      max-lifetime: 1200000
+  jpa:
+    hibernate:
+      ddl-auto: validate
+    show-sql: false
+    properties:
+      hibernate:
+        dialect: org.hibernate.dialect.MySQLDialect
+        format_sql: false
+        jdbc:
+          batch_size: 25
+  flyway:
+    enabled: true
+    baseline-on-migrate: true
+    locations: classpath:db/migration
+  data:
+    redis:
+      host: ${REDIS_HOST:localhost}
+      port: ${REDIS_PORT:6379}
+      password: ${REDIS_PASSWORD:}
+      timeout: 2000ms
+
+jwt:
+  secret: ${JWT_SECRET:dGhpcy1pcy1hLXNlY3VyZS01MTItYml0LXNpZ25pbmcta2V5LWZvci11c2EtdmlzYWNvYWNoLWtlbnlh}
+  expiration-ms: ${JWT_EXPIRATION_MS:3600000} # 1 hour
+  refresh-expiration-ms: ${JWT_REFRESH_EXPIRATION_MS:604800000} # 7 days
+
+daraja:
+  environment: ${DARAJA_ENV:sandbox}
+  consumer-key: ${DARAJA_CONSUMER_KEY:mock_key}
+  consumer-secret: ${DARAJA_CONSUMER_SECRET:mock_secret}
+  passkey: ${DARAJA_PASSKEY:bfb279f9aa9bdbcf158e97dd71a467cd2e0c893059b10f78e6b72ada1ed2c919}
+  business-short-code: ${DARAJA_BUSINESS_SHORT_CODE:174379}
+  callback-url: ${DARAJA_CALLBACK_URL:https://api.visacoach.co.ke/api/payments/mpesa/callback}
+
+ai:
+  provider: ${AI_PROVIDER_TYPE:MOCK}
+  storage:
+    audio-bucket: ${AUDIO_STORAGE_BUCKET:visacoach-interview-audio-recordings}

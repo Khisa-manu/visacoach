@@ -1,0 +1,6 @@
+{
+  "name": "USA VisaCoach",
+  "description": "Production-ready Android & Spring Boot backend platform for AI-powered real-time voice U.S. visa mock interviews.",
+  "requestFramePermissions": ["microphone"],
+  "majorCapabilities": ["MAJOR_CAPABILITY_SERVER_SIDE_GEMINI_API"]
+}
