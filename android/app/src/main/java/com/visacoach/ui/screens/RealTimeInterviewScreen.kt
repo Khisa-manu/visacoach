@@ -1,26 +1,25 @@
 package com.visacoach.ui.screens
 
-import androidx.compose.animation.AnimatedVisibility
 import androidx.compose.animation.animateColorAsState
-import androidx.compose.animation.core.*
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.shape.CircleShape
-import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.filled.*
+import androidx.compose.material.icons.filled.CallEnd
+import androidx.compose.material.icons.filled.Mic
 import androidx.compose.material3.*
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
+import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.visacoach.data.remote.AndroidInterviewState
-import com.visacoach.ui.theme.PrimaryNavy
+import com.visacoach.ui.theme.*
 import com.visacoach.ui.viewmodels.InterviewViewModel
 
 @Composable
@@ -37,233 +36,158 @@ fun RealTimeInterviewScreen(
 
     LaunchedEffect(uiState.state) {
         if (uiState.state == AndroidInterviewState.COMPLETED) {
-            onInterviewCompleted(uiState.interviewCompletedId ?: "completed-session")
+            onInterviewCompleted(uiState.interviewCompletedId ?: "completed")
         }
     }
 
-    val stateBadgeColor by animateColorAsState(
+    val stateColor by animateColorAsState(
         targetValue = when (uiState.state) {
-            AndroidInterviewState.AI_SPEAKING -> Color(0xFF2563EB)
-            AndroidInterviewState.LISTENING -> Color(0xFF059669)
-            AndroidInterviewState.PROCESSING -> Color(0xFFD97706)
-            AndroidInterviewState.AI_THINKING -> Color(0xFF7C3AED)
-            AndroidInterviewState.ERROR -> Color(0xFFDC2626)
-            else -> Color(0xFF64748B)
+            AndroidInterviewState.AI_SPEAKING -> InterviewSpeaking
+            AndroidInterviewState.LISTENING -> InterviewListening
+            AndroidInterviewState.PROCESSING -> InterviewProcessing
+            else -> Neutral500
         },
-        label = "stateBadgeColor"
+        label = "stateColor"
     )
 
-    val stateBadgeText = when (uiState.state) {
+    val stateText = when (uiState.state) {
         AndroidInterviewState.AI_SPEAKING -> "AI SPEAKING"
         AndroidInterviewState.LISTENING -> "LISTENING TO YOU"
-        AndroidInterviewState.PROCESSING -> "PROCESSING AUDIO"
-        AndroidInterviewState.AI_THINKING -> "AI THINKING..."
-        AndroidInterviewState.CONNECTING -> "CONNECTING..."
-        AndroidInterviewState.COMPLETED -> "INTERVIEW FINISHED"
-        AndroidInterviewState.ERROR -> "CONNECTION ERROR"
+        AndroidInterviewState.PROCESSING -> "PROCESSING"
+        AndroidInterviewState.AI_THINKING -> "AI THINKING"
         else -> "READY"
     }
 
     val minutes = uiState.elapsedTimeSeconds / 60
     val seconds = uiState.elapsedTimeSeconds % 60
-    val formattedTime = String.format("%02d:%02d", minutes, seconds)
+    val timeText = String.format("%02d:%02d", minutes, seconds)
 
-    Scaffold(
-        topBar = {
-            Row(
-                modifier = Modifier
-                    .fillMaxWidth()
-                    .padding(horizontal = 20.dp, vertical = 14.dp),
-                horizontalArrangement = Arrangement.SpaceBetween,
-                verticalAlignment = Alignment.CenterVertically
-            ) {
-                Column {
-                    Text(
-                        "Mock Consular Interview",
-                        fontSize = 15.sp,
-                        fontWeight = FontWeight.Bold,
-                        color = PrimaryNavy
-                    )
-                    Text(
-                        uiState.connectionStatus,
-                        fontSize = 11.sp,
-                        color = MaterialTheme.colorScheme.onSurfaceVariant
-                    )
-                }
-                Row(verticalAlignment = Alignment.CenterVertically) {
-                    Box(
-                        modifier = Modifier
-                            .background(Color(0xFFF1F5F9), RoundedCornerShape(8.dp))
-                            .padding(horizontal = 10.dp, vertical = 4.dp)
-                    ) {
-                        Text(
-                            text = formattedTime,
-                            fontSize = 13.sp,
-                            fontWeight = FontWeight.Bold,
-                            color = PrimaryNavy
-                        )
-                    }
-                }
-            }
-        },
-        bottomBar = {
-            Column(
-                modifier = Modifier
-                    .fillMaxWidth()
-                    .padding(horizontal = 20.dp, vertical = 18.dp),
-                horizontalAlignment = Alignment.CenterHorizontally
-            ) {
-                // Done Speaking / Push to Send Button
-                if (uiState.state == AndroidInterviewState.LISTENING) {
-                    Button(
-                        onClick = { viewModel.onUserDoneSpeaking() },
-                        colors = ButtonDefaults.buttonColors(containerColor = Color(0xFF059669)),
-                        shape = RoundedCornerShape(14.dp),
-                        modifier = Modifier.fillMaxWidth().height(52.dp)
-                    ) {
-                        Icon(Icons.Default.Done, contentDescription = null)
-                        Spacer(modifier = Modifier.width(8.dp))
-                        Text("Done Speaking (Submit Answer)", fontWeight = FontWeight.Bold)
-                    }
-                    Spacer(modifier = Modifier.height(10.dp))
-                }
-
-                OutlinedButton(
-                    onClick = {
-                        viewModel.endInterview()
-                        onClose()
-                    },
-                    shape = RoundedCornerShape(12.dp),
-                    colors = ButtonDefaults.outlinedButtonColors(contentColor = Color(0xFFDC2626)),
-                    modifier = Modifier.fillMaxWidth().height(48.dp)
-                ) {
-                    Icon(Icons.Default.CallEnd, contentDescription = null)
-                    Spacer(modifier = Modifier.width(8.dp))
-                    Text("End Interview Session")
-                }
-            }
-        }
-    ) { padding ->
+    Box(
+        modifier = Modifier
+            .fillMaxSize()
+            .background(Neutral900)
+    ) {
         Column(
             modifier = Modifier
                 .fillMaxSize()
-                .padding(padding)
-                .padding(horizontal = 20.dp),
-            horizontalAlignment = Alignment.CenterHorizontally,
-            verticalArrangement = Arrangement.SpaceBetween
+                .padding(horizontal = 20.dp)
+                .padding(top = 16.dp, bottom = 32.dp),
+            horizontalAlignment = Alignment.CenterHorizontally
         ) {
-            // Header Indicators
-            Column(horizontalAlignment = Alignment.CenterHorizontally, modifier = Modifier.padding(top = 10.dp)) {
-                // State Badge
-                Box(
-                    modifier = Modifier
-                        .background(stateBadgeColor.copy(alpha = 0.15f), RoundedCornerShape(20.dp))
-                        .padding(horizontal = 16.dp, vertical = 6.dp)
+            // Top bar
+            Row(
+                modifier = Modifier.fillMaxWidth(),
+                horizontalArrangement = Arrangement.SpaceBetween,
+                verticalAlignment = Alignment.CenterVertically
+            ) {
+                Text(
+                    "USA VisaCoach",
+                    color = Color.White,
+                    style = VisaCoachTypography.titleSmall,
+                    fontWeight = FontWeight.Bold
+                )
+                Surface(
+                    color = stateColor.copy(alpha = 0.15f),
+                    shape = ShapeChip
                 ) {
                     Text(
-                        text = stateBadgeText,
-                        color = stateBadgeColor,
+                        text = stateText,
+                        color = stateColor,
+                        style = VisaCoachTypography.labelSmall,
                         fontWeight = FontWeight.Bold,
-                        fontSize = 12.sp
+                        modifier = Modifier.padding(horizontal = 12.dp, vertical = 6.dp)
                     )
                 }
-
-                Spacer(modifier = Modifier.height(10.dp))
-                Text(
-                    text = "Question ${uiState.questionNumber} of ~${uiState.totalQuestionsEstimated}",
-                    fontSize = 13.sp,
-                    color = MaterialTheme.colorScheme.onSurfaceVariant
-                )
-                Text(
-                    text = "Category: ${uiState.category.replace("_", " ")}",
-                    fontSize = 11.sp,
-                    fontWeight = FontWeight.SemiBold,
-                    color = PrimaryNavy
-                )
             }
 
-            // Central Area: AI Question Prompt & Waveform
-            Column(
-                horizontalAlignment = Alignment.CenterHorizontally,
+            Spacer(modifier = Modifier.height(8.dp))
+            Text(timeText, color = Neutral400, style = VisaCoachTypography.labelMedium)
+
+            Spacer(modifier = Modifier.height(40.dp))
+
+            // Waveform / Visualizer placeholder
+            Box(
                 modifier = Modifier
-                    .fillMaxWidth()
-                    .padding(vertical = 16.dp)
+                    .size(Dimens.waveformSize)
+                    .clip(CircleShape)
+                    .background(
+                        Brush.radialGradient(
+                            listOf(AccentTeal.copy(alpha = 0.25f), Color.Transparent)
+                        )
+                    ),
+                contentAlignment = Alignment.Center
             ) {
-                Card(
-                    modifier = Modifier.fillMaxWidth(),
-                    shape = RoundedCornerShape(18.dp),
-                    colors = CardDefaults.cardColors(containerColor = Color(0xFFF8FAFC))
-                ) {
-                    Column(
-                        modifier = Modifier.padding(20.dp),
-                        horizontalAlignment = Alignment.CenterHorizontally
-                    ) {
-                        Text(
-                            text = "\"${uiState.currentQuestionText}\"",
-                            fontSize = 17.sp,
-                            fontWeight = FontWeight.Medium,
-                            textAlign = TextAlign.Center,
-                            lineHeight = 24.sp,
-                            color = PrimaryNavy
-                        )
-                    }
-                }
-
-                Spacer(modifier = Modifier.height(28.dp))
-
-                // Audio Waveform Visualizer
-                Row(
-                    modifier = Modifier.height(56.dp),
-                    horizontalArrangement = Arrangement.spacedBy(8.dp),
-                    verticalAlignment = Alignment.CenterVertically
-                ) {
-                    uiState.audioAmplitudes.forEach { amp ->
-                        val barHeight = (amp * 48).coerceIn(8f, 52f)
-                        Box(
-                            modifier = Modifier
-                                .width(6.dp)
-                                .height(barHeight.dp)
-                                .clip(RoundedCornerShape(3.dp))
-                                .background(stateBadgeColor)
-                        )
-                    }
-                }
-
-                Spacer(modifier = Modifier.height(20.dp))
-
-                // Microphone Status Circle
                 Box(
                     modifier = Modifier
-                        .size(76.dp)
-                        .background(
-                            if (uiState.isMicActive) Color(0xFF059669).copy(alpha = 0.2f) else Color(0xFFE2E8F0),
-                            CircleShape
-                        ),
+                        .size(120.dp)
+                        .clip(CircleShape)
+                        .background(AccentTeal.copy(alpha = 0.15f)),
                     contentAlignment = Alignment.Center
                 ) {
+                    // Simple animated bars could go here later
                     Icon(
-                        imageVector = if (uiState.isMicActive) Icons.Default.Mic else Icons.Default.MicOff,
+                        Icons.Default.Mic,
                         contentDescription = null,
-                        tint = if (uiState.isMicActive) Color(0xFF059669) else Color(0xFF64748B),
-                        modifier = Modifier.size(36.dp)
-                    )
-                }
-
-                Spacer(modifier = Modifier.height(16.dp))
-
-                // User Transcript Display
-                if (uiState.userTranscript.isNotBlank()) {
-                    Text(
-                        text = uiState.userTranscript,
-                        fontSize = 13.sp,
-                        color = Color(0xFF334155),
-                        textAlign = TextAlign.Center,
-                        modifier = Modifier.padding(horizontal = 16.dp)
+                        tint = AccentTeal,
+                        modifier = Modifier.size(48.dp)
                     )
                 }
             }
 
-            Spacer(modifier = Modifier.height(1.dp))
+            Spacer(modifier = Modifier.height(40.dp))
+
+            Text(
+                "CURRENT AI QUESTION",
+                color = Neutral500,
+                style = VisaCoachTypography.labelSmall,
+                letterSpacing = 1.sp
+            )
+            Spacer(modifier = Modifier.height(12.dp))
+            Text(
+                text = uiState.currentQuestion.ifEmpty { "What is the purpose of your trip to the United States?" },
+                color = Color.White,
+                style = VisaCoachTypography.headlineSmall,
+                fontWeight = FontWeight.Bold,
+                textAlign = TextAlign.Center,
+                modifier = Modifier.padding(horizontal = 8.dp)
+            )
+
+            Spacer(modifier = Modifier.weight(1f))
+
+            // Mic Button
+            Box(
+                modifier = Modifier
+                    .size(Dimens.micButtonSize)
+                    .clip(CircleShape)
+                    .background(AccentTeal),
+                contentAlignment = Alignment.Center
+            ) {
+                Icon(
+                    Icons.Default.Mic,
+                    contentDescription = "Microphone",
+                    tint = Color.White,
+                    modifier = Modifier.size(36.dp)
+                )
+            }
+
+            Spacer(modifier = Modifier.height(8.dp))
+            Text(
+                if (uiState.state == AndroidInterviewState.LISTENING) "Listening..." else "Tap to speak",
+                color = Neutral400,
+                style = VisaCoachTypography.labelMedium
+            )
+
+            Spacer(modifier = Modifier.height(24.dp))
+
+            // End Interview
+            TextButton(
+                onClick = onClose,
+                colors = ButtonDefaults.textButtonColors(contentColor = Error)
+            ) {
+                Icon(Icons.Default.CallEnd, contentDescription = null)
+                Spacer(modifier = Modifier.width(8.dp))
+                Text("End Interview", fontWeight = FontWeight.SemiBold)
+            }
         }
     }
 }

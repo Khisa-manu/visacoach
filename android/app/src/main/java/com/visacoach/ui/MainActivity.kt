@@ -1,7 +1,6 @@
 package com.visacoach.ui
 
 import android.Manifest
-import android.content.pm.PackageManager
 import android.os.Bundle
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.rememberLauncherForActivityResult
@@ -9,11 +8,12 @@ import androidx.activity.compose.setContent
 import androidx.activity.result.contract.ActivityResultContracts
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
-import androidx.core.content.ContextCompat
 import androidx.hilt.navigation.compose.hiltViewModel
+import androidx.navigation.NavType
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import androidx.navigation.compose.rememberNavController
+import androidx.navigation.navArgument
 import com.visacoach.ui.navigation.Screen
 import com.visacoach.ui.screens.*
 import com.visacoach.ui.theme.VisaCoachTheme
@@ -40,9 +40,7 @@ class MainActivity : ComponentActivity() {
 fun RequestAudioPermission() {
     val launcher = rememberLauncherForActivityResult(
         contract = ActivityResultContracts.RequestPermission()
-    ) { isGranted ->
-        // Handle mic permission result
-    }
+    ) { /* permission result handled silently for now */ }
 
     LaunchedEffect(Unit) {
         launcher.launch(Manifest.permission.RECORD_AUDIO)
@@ -57,12 +55,15 @@ fun AppNavigation() {
         navController = navController,
         startDestination = Screen.Splash.route
     ) {
+        // ─── Auth Flow ───────────────────────────────────────
         composable(Screen.Splash.route) {
-            SplashScreen(onNavigateToWelcome = {
-                navController.navigate(Screen.Welcome.route) {
-                    popUpTo(Screen.Splash.route) { inclusive = true }
+            SplashScreen(
+                onNavigateToWelcome = {
+                    navController.navigate(Screen.Welcome.route) {
+                        popUpTo(Screen.Splash.route) { inclusive = true }
+                    }
                 }
-            })
+            )
         }
 
         composable(Screen.Welcome.route) {
@@ -76,8 +77,10 @@ fun AppNavigation() {
             val authVm: AuthViewModel = hiltViewModel()
             RegisterScreen(
                 viewModel = authVm,
-                onNavigateToOtp = { phone -> navController.navigate(Screen.Otp.createRoute(phone)) },
-                onBack = { navController.popBackStack() }
+                onNavigateToOtp = { phone ->
+                    navController.navigate(Screen.Otp.createRoute(phone))
+                },
+                onNavigateToLogin = { navController.navigate(Screen.Login.route) }
             )
         }
 
@@ -85,25 +88,32 @@ fun AppNavigation() {
             val authVm: AuthViewModel = hiltViewModel()
             LoginScreen(
                 viewModel = authVm,
-                onNavigateToOtp = { phone -> navController.navigate(Screen.Otp.createRoute(phone)) },
-                onBack = { navController.popBackStack() }
+                onNavigateToOtp = { phone ->
+                    navController.navigate(Screen.Otp.createRoute(phone))
+                },
+                onNavigateToRegister = { navController.navigate(Screen.Register.route) }
             )
         }
 
-        composable(Screen.Otp.route) { backStackEntry ->
+        composable(
+            route = Screen.Otp.route,
+            arguments = listOf(navArgument("phoneNumber") { type = NavType.StringType })
+        ) { backStackEntry ->
             val phone = backStackEntry.arguments?.getString("phoneNumber") ?: ""
             val authVm: AuthViewModel = hiltViewModel()
             OtpScreen(
                 phoneNumber = phone,
                 viewModel = authVm,
-                onAuthSuccess = {
+                onVerified = {
                     navController.navigate(Screen.Dashboard.route) {
                         popUpTo(Screen.Welcome.route) { inclusive = true }
                     }
-                }
+                },
+                onBack = { navController.popBackStack() }
             )
         }
 
+        // ─── Main App ────────────────────────────────────────
         composable(Screen.Dashboard.route) {
             val paymentVm: PaymentViewModel = hiltViewModel()
             DashboardScreen(
@@ -121,21 +131,8 @@ fun AppNavigation() {
             val profileVm: ProfileViewModel = hiltViewModel()
             ProfileScreen(
                 viewModel = profileVm,
-                onBack = { navController.popBackStack() }
-            )
-        }
-
-        composable(Screen.VisaType.route) {
-            VisaTypeScreen(
                 onBack = { navController.popBackStack() },
-                onStartPrep = { navController.navigate(Screen.InterviewPrep.route) }
-            )
-        }
-
-        composable(Screen.InterviewPrep.route) {
-            InterviewPrepScreen(
-                onBack = { navController.popBackStack() },
-                onStartMock = { navController.navigate(Screen.RealTimeInterview.route) }
+                onNavigateToSubscription = { navController.navigate(Screen.Subscription.route) }
             )
         }
 
@@ -152,21 +149,30 @@ fun AppNavigation() {
             )
         }
 
-        composable(Screen.Results.route) {
+        composable(
+            route = Screen.Results.route,
+            arguments = listOf(navArgument("interviewId") { type = NavType.StringType })
+        ) {
             InterviewResultsScreen(
-                onDone = {
+                overallScore = 8.4f, // replace later with real score from ViewModel
+                onPracticeWeakAreas = {
+                    navController.navigate(Screen.PracticeWeakAreas.route)
+                },
+                onShare = { /* share logic */ },
+                onBack = {
                     navController.navigate(Screen.Dashboard.route) {
                         popUpTo(Screen.Dashboard.route) { inclusive = true }
                     }
-                },
-                onPracticeWeakAreas = { navController.navigate(Screen.PracticeWeakAreas.route) }
+                }
             )
         }
 
         composable(Screen.PracticeWeakAreas.route) {
             PracticeWeakAreasScreen(
                 onBack = { navController.popBackStack() },
-                onSelectCategory = { navController.navigate(Screen.RealTimeInterview.route) }
+                onSelectCategory = {
+                    navController.navigate(Screen.RealTimeInterview.route)
+                }
             )
         }
 
@@ -202,7 +208,7 @@ fun AppNavigation() {
                 onLogout = {
                     authVm.logout()
                     navController.navigate(Screen.Welcome.route) {
-                        popUpTo(Screen.Dashboard.route) { inclusive = true }
+                        popUpTo(0) { inclusive = true }
                     }
                 }
             )

@@ -14,6 +14,7 @@ import javax.inject.Inject
 
 sealed class PaymentUiState {
     object Idle : PaymentUiState()
+    object Loading : PaymentUiState()
     object Initiating : PaymentUiState()
     data class AwaitingPin(val checkoutRequestId: String, val message: String) : PaymentUiState()
     data class Completed(val receipt: String, val amount: Double) : PaymentUiState()
@@ -48,9 +49,13 @@ class PaymentViewModel @Inject constructor(
         }
     }
 
+    fun initiateStkPush(phoneNumber: String, planCode: String = "PREMIUM") {
+        initiateMpesaStkPush(phoneNumber, planCode)
+    }
+
     fun initiateMpesaStkPush(phoneNumber: String, planCode: String = "PREMIUM") {
         viewModelScope.launch {
-            _uiState.value = PaymentUiState.Initiating
+            _uiState.value = PaymentUiState.Loading
             try {
                 val res = api.initiateStkPush(StkPushRequest(phoneNumber, planCode))
                 if (res.isSuccessful && res.body() != null) {

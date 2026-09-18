@@ -16,6 +16,8 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.visacoach.domain.models.ProfileModel
+import com.visacoach.ui.components.PrimaryButton
+import com.visacoach.ui.theme.*
 import com.visacoach.ui.viewmodels.ProfileUiState
 import com.visacoach.ui.viewmodels.ProfileViewModel
 
@@ -23,19 +25,22 @@ import com.visacoach.ui.viewmodels.ProfileViewModel
 @Composable
 fun ProfileScreen(
     viewModel: ProfileViewModel,
-    onBack: () -> Unit
+    onBack: () -> Unit,
+    onNavigateToSubscription: () -> Unit = {}
 ) {
     val uiState by viewModel.uiState.collectAsState()
 
     Scaffold(
+        containerColor = Neutral50,
         topBar = {
             TopAppBar(
-                title = { Text("Applicant Profile", fontWeight = FontWeight.Bold) },
+                title = { Text("Applicant Profile", fontWeight = FontWeight.Bold, color = PrimaryNavy) },
                 navigationIcon = {
                     IconButton(onClick = onBack) {
-                        Icon(Icons.Default.ArrowBack, contentDescription = "Back")
+                        Icon(Icons.Default.ArrowBack, contentDescription = "Back", tint = PrimaryNavy)
                     }
-                }
+                },
+                colors = TopAppBarDefaults.topAppBarColors(containerColor = Neutral50)
             )
         }
     ) { padding ->
@@ -247,7 +252,8 @@ fun ProfileForm(
 
         item {
             Spacer(modifier = Modifier.height(10.dp))
-            Button(
+            PrimaryButton(
+                text = "Save & Update Profile",
                 onClick = {
                     onSave(
                         profile.copy(
@@ -267,18 +273,8 @@ fun ProfileForm(
                         )
                     )
                 },
-                modifier = Modifier.fillMaxWidth().height(50.dp),
-                shape = RoundedCornerShape(12.dp),
-                enabled = !isSaving
-            ) {
-                if (isSaving) {
-                    CircularProgressIndicator(modifier = Modifier.size(20.dp), color = Color.White)
-                } else {
-                    Icon(Icons.Default.Check, contentDescription = null)
-                    Spacer(modifier = Modifier.width(8.dp))
-                    Text("Save & Update Interview Profile")
-                }
-            }
+                loading = isSaving
+            )
             Spacer(modifier = Modifier.height(30.dp))
         }
     }

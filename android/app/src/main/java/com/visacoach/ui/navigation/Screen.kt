@@ -21,4 +21,5 @@ sealed class Screen(val route: String) {
     object Subscription : Screen("subscription")
     object MpesaPayment : Screen("mpesa_payment")
     object Settings : Screen("settings")
+    object UiKit : Screen("uikit")
 }

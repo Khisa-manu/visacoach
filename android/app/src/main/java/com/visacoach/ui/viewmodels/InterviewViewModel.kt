@@ -34,7 +34,9 @@ data class RealTimeInterviewUiState(
     val audioAmplitudes: List<Float> = listOf(0.2f, 0.5f, 0.8f, 0.4f, 0.6f, 0.9f, 0.3f),
     val interviewCompletedId: String? = null,
     val errorMessage: String? = null
-)
+) {
+    val currentQuestion: String get() = currentQuestionText
+}
 
 @HiltViewModel
 class InterviewViewModel @Inject constructor(

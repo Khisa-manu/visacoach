@@ -14,12 +14,14 @@ import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.draw.clip
+import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
-import com.visacoach.ui.theme.PrimaryNavy
-import com.visacoach.ui.theme.SafaricomGreen
+import com.visacoach.ui.components.VisaCard
+import com.visacoach.ui.theme.*
 import com.visacoach.ui.viewmodels.PaymentViewModel
 
 @Composable
@@ -35,48 +37,35 @@ fun DashboardScreen(
     val subscription by paymentViewModel.subscription.collectAsState()
 
     Scaffold(
-        topBar = {
-            Row(
-                modifier = Modifier
-                    .fillMaxWidth()
-                    .padding(horizontal = 20.dp, vertical = 16.dp),
-                horizontalArrangement = Arrangement.SpaceBetween,
-                verticalAlignment = Alignment.CenterVertically
-            ) {
-                Column {
-                    Text("USA VisaCoach", fontWeight = FontWeight.Bold, fontSize = 20.sp, color = PrimaryNavy)
-                    Text("B1/B2 Visitor Visa Preparation", fontSize = 12.sp, color = MaterialTheme.colorScheme.onSurfaceVariant)
-                }
-                IconButton(onClick = onNavigateToSettings) {
-                    Icon(Icons.Default.Settings, contentDescription = "Settings")
-                }
-            }
-        },
+        containerColor = Neutral50,
         bottomBar = {
-            NavigationBar {
+            NavigationBar(
+                containerColor = Color.White,
+                tonalElevation = 0.dp
+            ) {
                 NavigationBarItem(
                     selected = true,
                     onClick = { },
-                    icon = { Icon(Icons.Default.Home, null) },
+                    icon = { Icon(Icons.Default.Home, contentDescription = null) },
                     label = { Text("Home") }
                 )
                 NavigationBarItem(
                     selected = false,
                     onClick = onNavigateToPractice,
-                    icon = { Icon(Icons.Default.Psychology, null) },
+                    icon = { Icon(Icons.Default.Chat, contentDescription = null) },
                     label = { Text("Practice") }
                 )
                 NavigationBarItem(
                     selected = false,
-                    onClick = onNavigateToProfile,
-                    icon = { Icon(Icons.Default.Person, null) },
-                    label = { Text("Profile") }
+                    onClick = onNavigateToHistory,
+                    icon = { Icon(Icons.Default.History, contentDescription = null) },
+                    label = { Text("History") }
                 )
                 NavigationBarItem(
                     selected = false,
-                    onClick = onNavigateToSubscription,
-                    icon = { Icon(Icons.Default.Star, null) },
-                    label = { Text("Plans") }
+                    onClick = onNavigateToProfile,
+                    icon = { Icon(Icons.Default.Person, contentDescription = null) },
+                    label = { Text("Profile") }
                 )
             }
         }
@@ -85,167 +74,208 @@ fun DashboardScreen(
             modifier = Modifier
                 .fillMaxSize()
                 .padding(padding)
-                .padding(horizontal = 20.dp),
-            verticalArrangement = Arrangement.spacedBy(16.dp)
+                .padding(horizontal = Dimens.screenHorizontal),
+            verticalArrangement = Arrangement.spacedBy(20.dp)
         ) {
-            // Subscription Status Card
+            item {
+                Spacer(modifier = Modifier.height(8.dp))
+                // Top Bar
+                Row(
+                    modifier = Modifier.fillMaxWidth(),
+                    horizontalArrangement = Arrangement.SpaceBetween,
+                    verticalAlignment = Alignment.CenterVertically
+                ) {
+                    Row(verticalAlignment = Alignment.CenterVertically) {
+                        Icon(
+                            imageVector = Icons.Default.Security,
+                            contentDescription = null,
+                            tint = PrimaryNavy,
+                            modifier = Modifier.size(28.dp)
+                        )
+                        Spacer(modifier = Modifier.width(8.dp))
+                        Column {
+                            Text(
+                                "USA VisaCoach",
+                                style = VisaCoachTypography.titleMedium,
+                                fontWeight = FontWeight.Bold,
+                                color = PrimaryNavy
+                            )
+                            Text(
+                                "B1/B2 Prep",
+                                style = VisaCoachTypography.labelSmall,
+                                color = Neutral500
+                            )
+                        }
+                    }
+                    IconButton(onClick = onNavigateToSettings) {
+                        Icon(Icons.Default.Settings, contentDescription = "Settings", tint = Neutral600)
+                    }
+                }
+            }
+
+            // Hero Card - Start Interview
             item {
                 Card(
                     modifier = Modifier.fillMaxWidth(),
-                    shape = RoundedCornerShape(16.dp),
-                    colors = CardDefaults.cardColors(
-                        containerColor = if (subscription?.isPremium == true) Color(0xFF064E3B) else Color(0xFFF1F5F9)
-                    )
-                ) {
-                    Row(
-                        modifier = Modifier
-                            .fillMaxWidth()
-                            .padding(16.dp),
-                        verticalAlignment = Alignment.CenterVertically,
-                        horizontalArrangement = Arrangement.SpaceBetween
-                    ) {
-                        Column {
-                            Text(
-                                text = if (subscription?.isPremium == true) "PREMIUM ACCESS ACTIVE" else "FREE STARTER TIER",
-                                fontSize = 11.sp,
-                                fontWeight = FontWeight.Bold,
-                                color = if (subscription?.isPremium == true) Color(0xFF34D399) else Color(0xFF475569)
-                            )
-                            Spacer(modifier = Modifier.height(4.dp))
-                            Text(
-                                text = if (subscription?.isPremium == true) "Unlimited AI practice & in-depth analysis" else "1 Free Mock Interview remaining",
-                                fontSize = 14.sp,
-                                fontWeight = FontWeight.Medium,
-                                color = if (subscription?.isPremium == true) Color.White else PrimaryNavy
-                            )
-                        }
-                        if (subscription?.isPremium != true) {
-                            Button(
-                                onClick = onNavigateToSubscription,
-                                colors = ButtonDefaults.buttonColors(containerColor = SafaricomGreen),
-                                shape = RoundedCornerShape(8.dp)
-                            ) {
-                                Text("M-Pesa Upgrade", fontSize = 12.sp)
-                            }
-                        }
-                    }
-                }
-            }
-
-            // Big Start Interview CTA Card
-            item {
-                Card(
-                    modifier = Modifier
-                        .fillMaxWidth()
-                        .clickable { onStartInterview() },
-                    shape = RoundedCornerShape(20.dp),
+                    shape = ShapeCardLg,
                     colors = CardDefaults.cardColors(containerColor = PrimaryNavy)
                 ) {
-                    Column(modifier = Modifier.padding(24.dp)) {
-                        Row(verticalAlignment = Alignment.CenterVertically) {
-                            Box(
-                                modifier = Modifier
-                                    .size(44.dp)
-                                    .background(Color.White.copy(alpha = 0.15f), CircleShape),
-                                contentAlignment = Alignment.Center
+                    Box(
+                        modifier = Modifier
+                            .fillMaxWidth()
+                            .background(
+                                Brush.horizontalGradient(
+                                    listOf(PrimaryNavy, PrimaryNavyLight)
+                                )
+                            )
+                            .padding(20.dp)
+                    ) {
+                        Column {
+                            Row(verticalAlignment = Alignment.CenterVertically) {
+                                Icon(
+                                    Icons.Default.Mic,
+                                    contentDescription = null,
+                                    tint = Color.White,
+                                    modifier = Modifier.size(28.dp)
+                                )
+                                Spacer(modifier = Modifier.width(12.dp))
+                                Text(
+                                    "Start Live AI Interview",
+                                    style = VisaCoachTypography.titleLarge,
+                                    fontWeight = FontWeight.Bold,
+                                    color = Color.White
+                                )
+                            }
+                            Spacer(modifier = Modifier.height(8.dp))
+                            Text(
+                                "Real-time voice simulated consular interview",
+                                style = VisaCoachTypography.bodySmall,
+                                color = Neutral300
+                            )
+                            Spacer(modifier = Modifier.height(20.dp))
+                            Button(
+                                onClick = onStartInterview,
+                                colors = ButtonDefaults.buttonColors(
+                                    containerColor = Color(0xFF38BDF8),
+                                    contentColor = PrimaryNavy
+                                ),
+                                shape = ShapeButton,
+                                modifier = Modifier.fillMaxWidth()
                             ) {
-                                Icon(Icons.Default.Mic, contentDescription = null, tint = Color.White)
+                                Icon(Icons.Default.Mic, contentDescription = null, modifier = Modifier.size(18.dp))
+                                Spacer(modifier = Modifier.width(8.dp))
+                                Text("Start Live AI Interview", fontWeight = FontWeight.Bold)
                             }
-                            Spacer(modifier = Modifier.width(14.dp))
-                            Column {
-                                Text("Start Voice Mock Interview", color = Color.White, fontSize = 18.sp, fontWeight = FontWeight.Bold)
-                                Text("Real-time AI Simulated Consular Interview", color = Color(0xFF94A3B8), fontSize = 12.sp)
-                            }
-                        }
-                        Spacer(modifier = Modifier.height(18.dp))
-                        Text(
-                            "The simulated interviewer speaks aloud in English and listens naturally to your responses via your microphone.",
-                            color = Color(0xFFE2E8F0),
-                            fontSize = 13.sp,
-                            lineHeight = 18.sp
-                        )
-                        Spacer(modifier = Modifier.height(16.dp))
-                        Button(
-                            onClick = onStartInterview,
-                            colors = ButtonDefaults.buttonColors(containerColor = Color(0xFF38BDF8)),
-                            shape = RoundedCornerShape(10.dp),
-                            modifier = Modifier.fillMaxWidth()
-                        ) {
-                            Text("Launch Live Session", color = PrimaryNavy, fontWeight = FontWeight.Bold)
                         }
                     }
                 }
             }
 
-            // Quick Actions & Practice Progress
-            item {
-                Text("Practice Performance & Weak Areas", fontWeight = FontWeight.Bold, fontSize = 16.sp)
-                Spacer(modifier = Modifier.height(8.dp))
-                Row(modifier = Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.spacedBy(12.dp)) {
-                    Card(
-                        modifier = Modifier
-                            .weight(1f)
-                            .clickable { onNavigateToPractice() },
-                        shape = RoundedCornerShape(14.dp)
-                    ) {
-                        Column(modifier = Modifier.padding(16.dp)) {
-                            Icon(Icons.Default.Assessment, contentDescription = null, tint = Color(0xFF2563EB))
-                            Spacer(modifier = Modifier.height(8.dp))
-                            Text("Financial Ties", fontWeight = FontWeight.Bold, fontSize = 14.sp)
-                            Text("Score: 7.2 / 10", fontSize = 12.sp, color = MaterialTheme.colorScheme.onSurfaceVariant)
-                        }
-                    }
-                    Card(
-                        modifier = Modifier
-                            .weight(1f)
-                            .clickable { onNavigateToPractice() },
-                        shape = RoundedCornerShape(14.dp)
-                    ) {
-                        Column(modifier = Modifier.padding(16.dp)) {
-                            Icon(Icons.Default.FlightTakeoff, contentDescription = null, tint = Color(0xFF0D9488))
-                            Spacer(modifier = Modifier.height(8.dp))
-                            Text("Trip Purpose", fontWeight = FontWeight.Bold, fontSize = 14.sp)
-                            Text("Score: 8.5 / 10", fontSize = 12.sp, color = MaterialTheme.colorScheme.onSurfaceVariant)
-                        }
-                    }
-                }
-            }
-
-            // Recent Interview History
+            // Progress Section
             item {
                 Row(
                     modifier = Modifier.fillMaxWidth(),
                     horizontalArrangement = Arrangement.SpaceBetween,
                     verticalAlignment = Alignment.CenterVertically
                 ) {
-                    Text("Past Mock Interviews", fontWeight = FontWeight.Bold, fontSize = 16.sp)
                     Text(
-                        "View All",
-                        fontSize = 13.sp,
-                        color = Color(0xFF2563EB),
-                        modifier = Modifier.clickable { onNavigateToHistory() }
+                        "Your Progress",
+                        style = VisaCoachTypography.titleMedium,
+                        fontWeight = FontWeight.Bold,
+                        color = PrimaryNavy
+                    )
+                    Text(
+                        "Updated today",
+                        style = VisaCoachTypography.labelSmall,
+                        color = Neutral500
                     )
                 }
-                Spacer(modifier = Modifier.height(8.dp))
-                Card(
+            }
+
+            item {
+                Row(
                     modifier = Modifier.fillMaxWidth(),
-                    shape = RoundedCornerShape(12.dp)
+                    horizontalArrangement = Arrangement.spacedBy(12.dp)
                 ) {
-                    Row(
-                        modifier = Modifier
-                            .fillMaxWidth()
-                            .padding(16.dp),
-                        verticalAlignment = Alignment.CenterVertically,
-                        horizontalArrangement = Arrangement.SpaceBetween
-                    ) {
-                        Column {
-                            Text("B1/B2 Mock Session #1", fontWeight = FontWeight.SemiBold, fontSize = 15.sp)
-                            Text("7 Questions • 6m 20s • Relevance 8.0/10", fontSize = 12.sp, color = MaterialTheme.colorScheme.onSurfaceVariant)
-                        }
-                        Icon(Icons.Default.ChevronRight, contentDescription = null)
-                    }
+                    ProgressCard(
+                        title = "Financial Ties",
+                        score = 7.2f,
+                        max = 10f,
+                        strength = "Developing",
+                        color = Info,
+                        modifier = Modifier.weight(1f),
+                        onClick = onNavigateToPractice
+                    )
+                    ProgressCard(
+                        title = "Travel Intent",
+                        score = 8.1f,
+                        max = 10f,
+                        strength = "Strong",
+                        color = Success,
+                        modifier = Modifier.weight(1f),
+                        onClick = onNavigateToPractice
+                    )
                 }
             }
+
+            item { Spacer(modifier = Modifier.height(16.dp)) }
+        }
+    }
+}
+
+@Composable
+private fun ProgressCard(
+    title: String,
+    score: Float,
+    max: Float,
+    strength: String,
+    color: Color,
+    modifier: Modifier = Modifier,
+    onClick: () -> Unit
+) {
+    Card(
+        modifier = modifier.clickable { onClick() },
+        shape = ShapeCard,
+        colors = CardDefaults.cardColors(containerColor = Color.White),
+        elevation = CardDefaults.cardElevation(defaultElevation = 1.dp)
+    ) {
+        Column(
+            modifier = Modifier.padding(16.dp),
+            horizontalAlignment = Alignment.CenterHorizontally
+        ) {
+            Text(
+                title,
+                style = VisaCoachTypography.labelMedium,
+                color = Neutral600
+            )
+            Spacer(modifier = Modifier.height(8.dp))
+            Text(
+                String.format("%.1f", score),
+                style = VisaCoachTypography.headlineMedium,
+                fontWeight = FontWeight.Bold,
+                color = PrimaryNavy
+            )
+            Text(
+                "/ ${max.toInt()}",
+                style = VisaCoachTypography.labelSmall,
+                color = Neutral400
+            )
+            Spacer(modifier = Modifier.height(8.dp))
+            Text(
+                "Strength: $strength",
+                style = VisaCoachTypography.labelSmall,
+                color = color,
+                fontWeight = FontWeight.Medium
+            )
+            Spacer(modifier = Modifier.height(12.dp))
+            // Simple progress ring placeholder
+            CircularProgressIndicator(
+                progress = { score / max },
+                modifier = Modifier.size(56.dp),
+                color = color,
+                trackColor = Neutral200,
+                strokeWidth = 6.dp
+            )
         }
     }
 }
